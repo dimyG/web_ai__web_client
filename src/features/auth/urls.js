@@ -1,5 +1,6 @@
 const AUTH_API_SERVICE = process.env.REACT_APP_AUTH_API_SERVICE;
 
+// The proxy directive in package.json can be removed. We use env variables to set the API service urls
 const auth_server = AUTH_API_SERVICE;
 
 const urls = {

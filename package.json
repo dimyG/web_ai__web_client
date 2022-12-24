@@ -113,6 +113,5 @@
     "mdx-loader": "^3.0.2",
     "prettier": "^1.19.1",
     "typescript": "^3.9.7"
-  },
-  "proxy": "http://127.0.0.1:8000"
+  }
 }
