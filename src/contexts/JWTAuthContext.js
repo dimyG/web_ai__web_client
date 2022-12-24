@@ -10,11 +10,16 @@ import axios from "axios"
 import {useDispatch} from "react-redux";
 import {addMessage} from "../features/algorithms/algorithmsSlice";
 import {readCsrfFromCookie} from "../features/csrf/csrfSlice";
+import urls from "../features/auth/urls";
 
 // const initialUser = {
 //   name: null,
 //   avatar: null
 // }
+
+const login_url = urls.login
+const logout_url = urls.logout
+const register_url = urls.register
 
 const anonymousUser = null
 
@@ -111,7 +116,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     // const response = await axios.post('/api/account/login', { email, password });
     try {
-      const response = await axios.post('/dj-rest-auth/login/', {email, password});
+      const response = await axios.post(login_url, {email, password});
       const accessToken = response.data.access_token
       const userData = response.data.user
       const user = createUser(userData.pk, userData.username, userData.email)
@@ -131,7 +136,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      const response = await axios.post('/dj-rest-auth/logout/');
+      const response = await axios.post(logout_url);
       setSession(null);
       dispatch({ type: 'LOGOUT' });
     } catch (error) {
@@ -141,7 +146,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password1, password2) => {
     try {
-      const response = await axios.post('/dj-rest-auth/registration/', {
+      const response = await axios.post(register_url, {
         email: email,
         // name,
         password1: password1,
