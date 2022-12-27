@@ -9,5 +9,5 @@ export const THEMES = {
 };
 
 export const minHeapId = 1
-export const demoUsername = "test10@test.com"
-export const demoPassword = "testthetest"
+export const demoLogin = process.env.REACT_APP_DEMO_LOGIN
+export const demoPassword = process.env.REACT_APP_DEMO_PASSWORD

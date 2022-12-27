@@ -13,7 +13,7 @@ import {
 import { Alert } from '@material-ui/lab';
 import useAuth from 'src/hooks/useAuth';
 import useIsMountedRef from 'src/hooks/useIsMountedRef';
-import {demoUsername, demoPassword} from "../../../constants";
+import {demoLogin, demoPassword} from "../../../constants";
 
 const useStyles = makeStyles(() => ({
   root: {}
@@ -27,7 +27,7 @@ const JWTLogin = ({ className, ...rest }) => {
   return (
     <Formik
       initialValues={{
-        email: demoUsername,
+        email: demoLogin,
         password: demoPassword,
         submit: null
       }}
@@ -125,7 +125,7 @@ const JWTLogin = ({ className, ...rest }) => {
               <div>
                 You can login as
                 {' '}
-                <b>{demoUsername}</b>
+                <b>{demoLogin}</b>
                 {' '}
                 and password
                 {' '}
