@@ -180,14 +180,17 @@ export const AuthProvider = ({ children }) => {
         const accessToken = window.localStorage.getItem('accessToken');
 
         if (accessToken && isValidToken(accessToken)) {
+          console.debug("accessToken is valid")
           // on reload page get the user so to be logged in if he has a valid jwt accessToken
           setSession(accessToken);
 
-          // user is not stored globally, he is stored in a Context, so no need to dispatch actions
           // the token is sent with the Authorization header set by the setSession function
-          const response = await axios.get('/users/current/');
-          const { id, username, email } = response.data;
+
+          const jwt_claim = jwtDecode(accessToken)
+          const [id, username, email] = [jwt_claim.user_id, jwt_claim.username, jwt_claim.email]
           const user = createUser(id, username, email)
+
+          // Have in mind that user is not stored globally, it is stored in a Context, so no need to dispatch actions
 
           dispatch({
             type: 'INITIALISE',
