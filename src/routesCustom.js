@@ -17,6 +17,7 @@ import AlgorithmsListView from "./features/algorithms/AlgorithmsListView";
 import AnimationsRoute from "./features/animations/AnimationsRoute";
 import {minHeapId} from "./constants";
 import About from "./views/About";
+import TextToImage from "src/features/textToImage/views/TextToImage";
 
 
 export const renderRoutes = (routes = []) => (
@@ -84,36 +85,42 @@ const routes = [
   },
   {
     exact: true,
-    path: '/algorithms/list',
+    path: '*',
     layout: DashboardLayout,
-    // lazy load the component?
-    component: AlgorithmsListView
+    component: TextToImage
   },
-  {
-    exact: true,
-    path: '/animations/:algorithmId/',
-    layout: DashboardLayout,
-    component: AnimationsRoute
-  },
-  {
-    path: '/algorithms',
-    guard: AuthGuard,
-    layout: DashboardLayout,
-    routes: [
-      {
-        exact: true,
-        path: '/algorithms/create',
-        // guard: AuthGuard,
-        component: AlgorithmCreateUpdate
-      },
-      {
-        exact: true,
-        path: '/algorithms/:algorithmId',
-        // guard: AuthGuard,
-        component: AlgorithmCreateUpdate
-      },
-    ]
-  },
+  // {
+  //   exact: true,
+  //   path: '/algorithms/list',
+  //   layout: DashboardLayout,
+  //   // lazy load the component?
+  //   component: AlgorithmsListView
+  // },
+  // {
+  //   exact: true,
+  //   path: '/animations/:algorithmId/',
+  //   layout: DashboardLayout,
+  //   component: AnimationsRoute
+  // },
+  // {
+  //   path: '/algorithms',
+  //   guard: AuthGuard,
+  //   layout: DashboardLayout,
+  //   routes: [
+  //     {
+  //       exact: true,
+  //       path: '/algorithms/create',
+  //       // guard: AuthGuard,
+  //       component: AlgorithmCreateUpdate
+  //     },
+  //     {
+  //       exact: true,
+  //       path: '/algorithms/:algorithmId',
+  //       // guard: AuthGuard,
+  //       component: AlgorithmCreateUpdate
+  //     },
+  //   ]
+  // },
   {
     path: '*',
     // guard: AuthGuard,

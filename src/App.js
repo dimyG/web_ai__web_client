@@ -62,10 +62,10 @@ const App = () => {
                 </Button>
             )}
           >
-            <Csrf/>
+            {/*<Csrf/>*/}
             <Messages/>
             {/* get algorithms when you load the app. we need this here so that the Min Heap algorithm is always present in the side bar */}
-            <GetAlgorithms/>
+            {/*<GetAlgorithms/>*/}
             <Router history={history}>
               <AuthProvider>
                 <GlobalStyles />

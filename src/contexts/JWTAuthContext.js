@@ -10,16 +10,17 @@ import axios from "axios"
 import {useDispatch} from "react-redux";
 import {addMessage} from "../features/algorithms/algorithmsSlice";
 import {readCsrfFromCookie} from "../features/csrf/csrfSlice";
-import urls from "../features/auth/urls";
+import urls from "src/urls";
 
 // const initialUser = {
 //   name: null,
 //   avatar: null
 // }
 
-const login_url = urls.login
-const logout_url = urls.logout
-const register_url = urls.register
+const auth_urls = urls.auth
+const login_url = auth_urls.login
+const logout_url = auth_urls.logout
+const register_url = auth_urls.register
 
 const anonymousUser = null
 
