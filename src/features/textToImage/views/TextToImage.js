@@ -4,6 +4,7 @@ import React from "react";
 // import {Link as RouterLink} from "react-router-dom";
 // import Logo from "src/components/Logo";
 import TextPrompt from "./TextPrompt";
+import ImageGrid from "./ImageGrid";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,41 +25,8 @@ const TextToImagePage = () => {
     >
       <Container maxWidth={false}>
         {/*<Header />*/}
-        <Box mt={3}>
-          <Card>
-          <CardContent className={classes.cardContent}>
-            <Box
-              alignItems="center"
-              display="flex"
-              justifyContent="space-between"
-              mb={3}
-            >
-              <div>
-                <Typography
-                  color="textPrimary"
-                  gutterBottom
-                  variant="h2"
-                >
-                  Image
-                </Typography>
-              </div>
-              {/*<div className={classes.currentMethodIcon}>*/}
-              {/*    <RouterLink to="/">*/}
-              {/*      <Logo />*/}
-              {/*    </RouterLink>*/}
-              {/*</div>*/}
-            </Box>
-            <Box
-              flexGrow={1}
-              mt={3}
-            >
-              {/*{method === 'JWT' && <JWTRegister /> }*/}
-            </Box>
-            <Box my={3}>
-              <Divider />
-            </Box>
-          </CardContent>
-        </Card>
+        {/*<Box mt={3}>*/}
+
           <Box mt={3}>
           <Card >
             <CardContent >
@@ -66,7 +34,17 @@ const TextToImagePage = () => {
             </CardContent>
           </Card>
           </Box>
-        </Box>
+
+          <Box mt={3}>
+          <Card>
+          <CardContent className={classes.cardContent}>
+            {/*<Box alignItems="center" display="flex" justifyContent="space-between" mb={3}></Box>*/}
+            <ImageGrid />
+          </CardContent>
+          </Card>
+          </Box>
+
+        {/*</Box>*/}
       </Container>
     </Page>
   )

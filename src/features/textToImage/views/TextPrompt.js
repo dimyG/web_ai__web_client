@@ -36,7 +36,7 @@ const Prompt = ({ className, ...rest }) => {
   return (
     <Formik
       initialValues={{
-        text: 'A squirrel and an ant on kung fu pose, manga style',
+        text: 'A picture from a japanese manga style comic, showing a squirrel standing on kung fu pose',
         submit: null
       }}
       validationSchema={Yup.object().shape({
@@ -82,17 +82,18 @@ const Prompt = ({ className, ...rest }) => {
           <Grid container direction="row" justify="space-between" alignItems="center">
             <Grid item xs={12} md={10}>
             <TextField
-            error={Boolean(touched.text && errors.text)}
-            fullWidth
-            helperText={touched.text && errors.text}
-            label="Text"
-            margin="normal"
-            name="text"
-            onBlur={handleBlur}
-            onChange={handleChange}
-            type="text"
-            value={values.text}
-            variant="outlined"
+              multiline
+              error={Boolean(touched.text && errors.text)}
+              fullWidth
+              helperText={touched.text && errors.text}
+              label="Text"
+              margin="normal"
+              name="text"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              type="text"
+              value={values.text}
+              variant="outlined"
           />
             {errors.submit && (
               <Box mt={3}>
@@ -113,7 +114,7 @@ const Prompt = ({ className, ...rest }) => {
               type="submit"
               variant="contained"
             >
-              <Typography variant={"h3"}>Generate Image</Typography>
+              <Typography variant={"h3"}>Generate images</Typography>
             </Button>
           </Box>
             </Grid>
