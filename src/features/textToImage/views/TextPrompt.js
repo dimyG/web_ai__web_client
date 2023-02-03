@@ -16,6 +16,7 @@ import axios from "axios";
 import urls from 'src/urls';
 import store from "../../../store";
 import {messagesSlice} from 'src/features/Messages/messagesSlice';
+import {imagesSlice} from "../imagesSlice";
 
 const ai_tools_urls = urls.ai_tools;
 const text_to_image_url = ai_tools_urls.text_to_img;
@@ -49,9 +50,24 @@ const Prompt = ({ className, ...rest }) => {
         setStatus,
         setSubmitting
       }) => {
+
         try {
-          const response = await axios.post(text_to_image_url, null, {params: {prompt: values.text}});
-          store.dispatch(messagesSlice.actions.addMessage({text: response.data.prompt, mode: "success", seen: false}))
+          const response = await axios.post(text_to_image_url, null, {
+            params: {prompt: values.text},
+            responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
+          });
+
+          // convert the ArrayBuffer to a base64 encoded string
+          let base64ImageString = Buffer.from(response.data, 'binary').toString('base64')
+          // From the base64 string, create a "data URL" that can be used as the src attribute of an image.
+          // A data URL is a URL scheme that allows for the inclusion of small data items as "immediate" data,
+          // as if they were being referenced externally. The format of a data URL is data:[<media type>][;base64],<data>
+          // data URLs have a limited size (2-3 MB)
+          let img_src = "data:image/png;base64,"+base64ImageString
+
+          let img_store_obj = {prompt: values.text, img_src: img_src}
+          store.dispatch(imagesSlice.actions.addImage(img_store_obj))
+          // store.dispatch(messagesSlice.actions.addMessage({text: response.data.prompt, mode: "success", seen: false}))
 
           if (isMountedRef.current) {
             setStatus({ success: true });
