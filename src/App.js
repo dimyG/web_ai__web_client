@@ -22,7 +22,7 @@ import useSettings from 'src/hooks/useSettings';
 import { createTheme } from 'src/theme';
 import routes, { renderRoutes } from 'src/routesCustom';
 import {Csrf} from "./features/csrf/csrf";
-import Messages from "./components/Messages";
+import Messages from "./features/Messages/Messages";
 import GetAlgorithms from "./features/algorithms/GetAlgorithms";
 
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });

@@ -14,6 +14,8 @@ import {
 import useIsMountedRef from 'src/hooks/useIsMountedRef';
 import axios from "axios";
 import urls from 'src/urls';
+import store from "../../../store";
+import {messagesSlice} from 'src/features/Messages/messagesSlice';
 
 const ai_tools_urls = urls.ai_tools;
 const text_to_image_url = ai_tools_urls.text_to_img;
@@ -48,7 +50,8 @@ const Prompt = ({ className, ...rest }) => {
         setSubmitting
       }) => {
         try {
-          await axios.post(text_to_image_url, {text: values.text});
+          const response = await axios.post(text_to_image_url, null, {params: {prompt: values.text}});
+          store.dispatch(messagesSlice.actions.addMessage({text: response.data.prompt, mode: "success", seen: false}))
 
           if (isMountedRef.current) {
             setStatus({ success: true });

@@ -14,7 +14,7 @@ const urls = {
     user: auth_server + 'api/auth/users/',
   },
   ai_tools: {
-    text_to_img: text_to_img_server + 'api/text_to_img/',
+    text_to_img: text_to_img_server + 'generate_image/',
   }
 }
 

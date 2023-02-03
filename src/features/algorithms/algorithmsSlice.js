@@ -328,7 +328,7 @@ export const algorithmsSlice = createSlice({
 })
 
 export const algorithmsSelector = state => state.algorithms.list
-export const messagesSelector = state => state.algorithms.messages
+export const algorithmsMessagesSelector = state => state.algorithms.messages
 // export const getAllErrorSelector = state => state.algorithms.get_all.error
 export const getAllStatusSelector = state => state.algorithms.get_all.status
 // export const getErrorSelector = state => state.algorithms.get.error
