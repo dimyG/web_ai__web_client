@@ -1,0 +1,6 @@
+# in development we include the .env file in the image in order to use it in docker-compose
+# in production we must not add the .env file in the image. The env vars are read from a different source
+# .env
+
+node_modules/
+build/
