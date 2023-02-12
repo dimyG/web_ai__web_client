@@ -414,9 +414,9 @@ const NavBar = ({ onMobileClose, openMobile }) => {
     subheader: '',
     items: [
       {
-        title: 'Algorithms',
+        title: 'Create',
         // icon: ListIcon,
-        href: '/algorithms/list'
+        href: '/'
       },
     ]
   })

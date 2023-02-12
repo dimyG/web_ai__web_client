@@ -20,6 +20,8 @@ import {imagesSlice} from "../imagesSlice";
 
 const ai_tools_urls = urls.ai_tools;
 const text_to_image_url = ai_tools_urls.text_to_img;
+const runpod_run_url = ai_tools_urls.runpod_run;
+const runpod_status_url = ai_tools_urls.runpod_status;
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -32,6 +34,100 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const txt2img_internal = async (url, values) => {
+  return await axios.post(url, null, {
+    params: {prompt: values.text},
+    responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
+  });
+}
+
+const txt2img_runpod = async (
+  run_url = runpod_run_url,
+  status_url = runpod_status_url,
+  run_data) => {
+
+  const runpod_key = process.env.REACT_APP_RUNPOD_API_KEY;
+
+  const status_response = await axios.post(run_url, run_data, {
+    responseType: "json",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${runpod_key}`
+    }
+  });
+  // status_response:
+  // {
+  //     "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
+  //     "status": "IN_QUEUE"
+  // }
+
+  console.log("run_url response:", status_response);
+  const status_id = status_response.data.id;
+  const status = status_response.data.status;
+
+  async function getStatusOutput() {
+    // in progress status_response:
+    // {
+    //     "delayTime": 2624,
+    //     "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
+    //     "input": {
+    //         "prompt": "a cute magical flying dog, fantasy art drawn by disney concept artists"
+    //     },
+    //     "status": "IN_PROGRESS"
+    // }
+    // completed status_response:
+    // {
+    //   "delayTime": 123456, // (milliseconds) time in queue
+    //   "executionTime": 1234, // (milliseconds) time it took to complete the job
+    //   "gpu": "24", // gpu type used to run the job
+    //   "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
+    //   "input": {
+    //     "prompt": "a cute magical flying dog, fantasy art drawn by disney concept artists"
+    //   },
+    //   "output": [
+    //     {
+    //       "image": "https://job.results1",
+    //       "seed": 1
+    //     },
+    //     {
+    //       "image": "https://job.results2",
+    //       "seed": 2
+    //     }
+    //   ],
+    //   "status": "COMPLETED"
+    // }
+    while (true) {
+      const status_response = await axios.get(status_url + status_id, {
+        responseType: "json",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${runpod_key}`
+        }
+      });
+      console.log("status_url response:", status_response);
+      const status = status_response.data.status;
+      if (status === "IN_PROGRESS") {
+        console.log("IN_PROGRESS");
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else if (status === "IN_QUEUE") {
+        console.log("IN_QUEUE");
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else if (status === "COMPLETED") {
+        console.log("COMPLETED");
+        return status_response.data.output;
+      } else if (status === "FAILED") {
+        console.log("FAILED");
+        return null;
+      }
+    }
+  }
+
+  const output = await getStatusOutput();
+  console.log("status_url response:", output);
+
+  return output;
+}
+
 const Prompt = ({ className, ...rest }) => {
   const classes = useStyles();
   const isMountedRef = useIsMountedRef();
@@ -39,7 +135,13 @@ const Prompt = ({ className, ...rest }) => {
   return (
     <Formik
       initialValues={{
-        text: 'A picture from a japanese manga style comic, showing a squirrel standing on kung fu pose',
+        text: 'a pinochio steampunk robot, bar lighting serving coffee and chips, highly detailed, digital painting, artstation, concept art, sharp focus, cinematic lighting, illustration, artgerm, greg rutkowski, alphonse mucha, cgsociety, octane render, unreal engine 5',
+        model: 'stabilityai/stable-diffusion-2',
+        seed: 1024,
+        height: 512,
+        width: 512,
+        guidance_scale: 7.5,
+        num_inference_steps: 10,
         submit: null
       }}
       validationSchema={Yup.object().shape({
@@ -52,13 +154,29 @@ const Prompt = ({ className, ...rest }) => {
       }) => {
 
         try {
-          const response = await axios.post(text_to_image_url, null, {
-            params: {prompt: values.text},
-            responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
-          });
+          // const response = await axios.post(text_to_image_url, null, {
+          //   params: {prompt: values.text},
+          //   responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
+          // });
+
+          let runpod_run_data = {
+            'input': {
+              'prompt': values.text,
+              'model': values.model,
+              'seed': values.seed,
+              'height': values.height,
+              'width': values.width,
+              'guidance_scale': values.guidance_scale,
+              'num_inference_steps': values.num_inference_steps
+            }
+          }
+
+          const base64ImageString = await txt2img_runpod(runpod_run_url, runpod_status_url, runpod_run_data);
+          // const base64ImageString = 'debug'
 
           // convert the ArrayBuffer to a base64 encoded string
-          let base64ImageString = Buffer.from(response.data, 'binary').toString('base64')
+          // let base64ImageString = Buffer.from(response.data, 'binary').toString('base64')
+
           // From the base64 string, create a "data URL" that can be used as the src attribute of an image.
           // A data URL is a URL scheme that allows for the inclusion of small data items as "immediate" data,
           // as if they were being referenced externally. The format of a data URL is data:[<media type>][;base64],<data>
@@ -137,7 +255,109 @@ const Prompt = ({ className, ...rest }) => {
             </Button>
           </Box>
             </Grid>
+          </Grid>
+          <Grid container direction="row" justify="space-between" alignItems="center" collapse>
+            <Grid item xs={2} md={2}>
+              <TextField
+                multiline
+                error={Boolean(touched.model && errors.model)}
+                fullWidth
+                helperText={touched.model && errors.model}
+                label="Model"
+                margin="normal"
+                name="model"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                type="text"
+                value={values.model}
+                variant="outlined"
+              />
             </Grid>
+            <Grid item xs={2} md={1}>
+            {/*  textfield for height input */}
+              <TextField
+                multiline
+                error={Boolean(touched.height && errors.height)}
+                fullWidth
+                helperText={touched.height && errors.height}
+                label="Height"
+                margin="normal"
+                name="height"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                type="number"
+                value={values.height}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={2} md={1}>
+            {/*  textfield for width input */}
+              <TextField
+                multiline
+                error={Boolean(touched.width && errors.width)}
+                fullWidth
+                helperText={touched.width && errors.width}
+                label="Width"
+                margin="normal"
+                name="width"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                type="number"
+                value={values.width}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={2} md={1}>
+              <TextField
+                multiline
+                error={Boolean(touched.seed && errors.seed)}
+                fullWidth
+                helperText={touched.seed && errors.seed}
+                label="Seed"
+                margin="normal"
+                name="seed"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                type="number"
+                value={values.seed}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={2} md={1}>
+            {/*  textfield for guidance scale input */}
+              <TextField
+                multiline
+                error={Boolean(touched.guidance_scale && errors.guidance_scale)}
+                fullWidth
+                helperText={touched.guidance_scale && errors.guidance_scale}
+                label="Guidance"
+                margin="normal"
+                name="guidance_scale"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                type="number"
+                value={values.guidance_scale}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={2} md={1}>
+            {/*  textfield for num inference steps input */}
+              <TextField
+                multiline
+                error={Boolean(touched.num_inference_steps && errors.num_inference_steps)}
+                fullWidth
+                helperText={touched.num_inference_steps && errors.num_inference_steps}
+                label="Steps"
+                margin="normal"
+                name="num_inference_steps"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                type="number"
+                value={values.num_inference_steps}
+                variant="outlined"
+              />
+            </Grid>
+          </Grid>
         </form>
       )}
     </Formik>
