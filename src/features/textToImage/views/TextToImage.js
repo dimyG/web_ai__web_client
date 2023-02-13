@@ -1,10 +1,23 @@
 import Page from "src/components/Page";
-import {Box, Container, Grid, makeStyles, Card, CardContent, Typography, Divider, Link} from "@material-ui/core";
+import {
+  Box,
+  Container,
+  Grid,
+  makeStyles,
+  Card,
+  CardContent,
+  Typography,
+  Divider,
+  Link,
+  CardHeader
+} from "@material-ui/core";
 import React from "react";
 // import {Link as RouterLink} from "react-router-dom";
 // import Logo from "src/components/Logo";
 import TextPrompt from "./TextPrompt";
 import ImageGrid from "./ImageGrid";
+import {useSelector} from "react-redux";
+import {imagesSelector} from "../imagesSlice";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -17,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
 
 const TextToImagePage = () => {
   const classes = useStyles()
+  let images = useSelector(state => imagesSelector(state))
 
   return (
     <Page
@@ -24,27 +38,10 @@ const TextToImagePage = () => {
       title="Web AI"
     >
       <Container maxWidth={false}>
-        {/*<Header />*/}
-        {/*<Box mt={3}>*/}
-
-          <Box mt={3}>
-          <Card >
-            <CardContent >
-              <TextPrompt />
-            </CardContent>
-          </Card>
-          </Box>
-
-          <Box mt={3}>
-          <Card>
-          <CardContent className={classes.cardContent}>
-            {/*<Box alignItems="center" display="flex" justifyContent="space-between" mb={3}></Box>*/}
-            <ImageGrid />
-          </CardContent>
-          </Card>
-          </Box>
-
-        {/*</Box>*/}
+        <TextPrompt />
+        {images.length === 0 ? null : (
+          <ImageGrid />
+        )}
       </Container>
     </Page>
   )

@@ -414,7 +414,7 @@ const NavBar = ({ onMobileClose, openMobile }) => {
     subheader: '',
     items: [
       {
-        title: 'Create',
+        title: 'Text to Image',
         // icon: ListIcon,
         href: '/'
       },

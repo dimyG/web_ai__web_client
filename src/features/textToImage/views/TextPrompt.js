@@ -9,7 +9,12 @@ import {
   Button,
   FormHelperText,
   TextField,
-  makeStyles, Typography
+  makeStyles,
+  Typography,
+  Card,
+  CardContent,
+  CardHeader,
+  IconButton, Accordion, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails
 } from '@material-ui/core';
 import useIsMountedRef from 'src/hooks/useIsMountedRef';
 import axios from "axios";
@@ -17,9 +22,10 @@ import urls from 'src/urls';
 import store from "../../../store";
 import {messagesSlice} from 'src/features/Messages/messagesSlice';
 import {imagesSlice} from "../imagesSlice";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 const ai_tools_urls = urls.ai_tools;
-const text_to_image_url = ai_tools_urls.text_to_img;
+// const text_to_image_url = ai_tools_urls.text_to_img;
 const runpod_run_url = ai_tools_urls.runpod_run;
 const runpod_status_url = ai_tools_urls.runpod_status;
 const runpod_api_key = process.env.REACT_APP_RUNPOD_API_KEY;
@@ -32,6 +38,12 @@ const useStyles = makeStyles((theme) => ({
     },
     whiteSpace: "nowrap",
     marginTop: theme.spacing(1),
+  },
+  settings: {
+    [theme.breakpoints.down('md')]: {
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    }
   }
 }));
 
@@ -168,6 +180,11 @@ const Prompt = ({ className, ...rest }) => {
   const classes = useStyles();
   const isMountedRef = useIsMountedRef();
 
+  const [expanded, setExpanded] = React.useState(false);
+  const handlePanelChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
   return (
     <Formik
       initialValues={{
@@ -208,7 +225,7 @@ const Prompt = ({ className, ...rest }) => {
           }
 
           const base64ImageString = await txt2img_runpod(runpod_run_input_data);
-          // const base64ImageString = await runpodStatusOutput('8966803d-bf3f-438b-994d-5689bfc3e591');  //88344ebb-2a58-41f1-b551-77201a689d6e
+          // const base64ImageString = await runpodStatusOutput('47052042-822a-4644-ad4a-e303a4a74383');  //8966803d-bf3f-438b-994d-5689bfc3e591 88344ebb-2a58-41f1-b551-77201a689d6e 47052042-822a-4644-ad4a-e303a4a74383
           // const base64ImageString = 'debug'
 
           // convert the ArrayBuffer to a base64 encoded string
@@ -247,154 +264,164 @@ const Prompt = ({ className, ...rest }) => {
         touched,
         values
       }) => (
-        <form
-          noValidate
-          onSubmit={handleSubmit}
-          className={clsx(classes.root, className)}
-          {...rest}
-        >
-          <Grid container direction="row" justify="space-between" alignItems="center">
-            <Grid item xs={12} md={10}>
-            <TextField
-              multiline
-              error={Boolean(touched.text && errors.text)}
-              fullWidth
-              helperText={touched.text && errors.text}
-              label="Text"
-              margin="normal"
-              name="text"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              type="text"
-              value={values.text}
-              variant="outlined"
-          />
-            {errors.submit && (
-              <Box mt={3}>
-                <FormHelperText error>
-                  {errors.submit}
-                </FormHelperText>
+        <form noValidate onSubmit={handleSubmit} className={clsx(classes.root, className)} {...rest}>
+          <Card id={'prompt-container'} >
+            <CardContent >
+              <Grid container direction="row" justify="space-between" alignItems="center">
+                <Grid item xs={12} md={10}>
+                <TextField
+                  multiline
+                  error={Boolean(touched.text && errors.text)}
+                  fullWidth
+                  helperText={touched.text && errors.text}
+                  label="Text"
+                  margin="normal"
+                  name="text"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  type="text"
+                  value={values.text}
+                  variant="outlined"
+              />
+                {errors.submit && (
+                  <Box mt={3}>
+                    <FormHelperText error>
+                      {errors.submit}
+                    </FormHelperText>
+                  </Box>
+                )}
+                </Grid>
+                <Grid item xs={12} md={2}>
+              <Box>
+                <Button
+                  className={classes.button}
+                  fullWidth
+                  color="secondary"
+                  disabled={isSubmitting}
+                  size="large"
+                  type="submit"
+                  variant="contained"
+                >
+                  <Typography variant={"h3"}>Generate images</Typography>
+                </Button>
               </Box>
-            )}
-            </Grid>
-            <Grid item xs={12} md={2}>
-          <Box>
-            <Button
-              className={classes.button}
-              fullWidth
-              color="secondary"
-              disabled={isSubmitting}
-              size="large"
-              type="submit"
-              variant="contained"
-            >
-              <Typography variant={"h3"}>Generate images</Typography>
-            </Button>
+                </Grid>
+              </Grid>
+            </CardContent >
+          </Card >
+
+          <Box mt={3} id={'settings-container'}>
+            <ExpansionPanel expanded={expanded === 'panel1'} onChange={handlePanelChange('panel1')}>
+              <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
+                <Typography className={classes.heading}>Settings</Typography>
+              </ExpansionPanelSummary>
+              <ExpansionPanelDetails>
+                <Grid container direction="row" justify="space-between" alignItems="center" collapse>
+                  <Grid item className={classes.settings} xs={12} md={4} lg={4} >
+                    <TextField
+                      multiline
+                      error={Boolean(touched.model && errors.model)}
+                      fullWidth
+                      helperText={touched.model && errors.model}
+                      label="Model"
+                      margin="normal"
+                      name="model"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="text"
+                      value={values.model}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item className={classes.settings} xs={6} md={1}>
+                  {/*  textfield for height input */}
+                    <TextField
+                      multiline
+                      error={Boolean(touched.height && errors.height)}
+                      fullWidth
+                      helperText={touched.height && errors.height}
+                      label="Height"
+                      margin="normal"
+                      name="height"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="number"
+                      value={values.height}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item className={classes.settings} xs={6} md={1}>
+                  {/*  textfield for width input */}
+                    <TextField
+                      multiline
+                      error={Boolean(touched.width && errors.width)}
+                      fullWidth
+                      helperText={touched.width && errors.width}
+                      label="Width"
+                      margin="normal"
+                      name="width"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="number"
+                      value={values.width}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item className={classes.settings} xs={6} md={2}>
+                    <TextField
+                      multiline
+                      error={Boolean(touched.seed && errors.seed)}
+                      fullWidth
+                      helperText={touched.seed && errors.seed}
+                      label="Seed"
+                      margin="normal"
+                      name="seed"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="number"
+                      value={values.seed}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item className={classes.settings} xs={6} md={1}>
+                  {/*  textfield for guidance scale input */}
+                    <TextField
+                      multiline
+                      error={Boolean(touched.guidance_scale && errors.guidance_scale)}
+                      fullWidth
+                      helperText={touched.guidance_scale && errors.guidance_scale}
+                      label="Guidance"
+                      margin="normal"
+                      name="guidance_scale"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="number"
+                      value={values.guidance_scale}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item className={classes.settings} xs={6} md={1}>
+                  {/*  textfield for num inference steps input */}
+                    <TextField
+                      multiline
+                      error={Boolean(touched.num_inference_steps && errors.num_inference_steps)}
+                      fullWidth
+                      helperText={touched.num_inference_steps && errors.num_inference_steps}
+                      label="Steps"
+                      margin="normal"
+                      name="num_inference_steps"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      type="number"
+                      value={values.num_inference_steps}
+                      variant="outlined"
+                    />
+                  </Grid>
+                </Grid>
+              </ExpansionPanelDetails>
+            </ExpansionPanel>
           </Box>
-            </Grid>
-          </Grid>
-          <Grid container direction="row" justify="space-between" alignItems="center" collapse>
-            <Grid item xs={2} md={2}>
-              <TextField
-                multiline
-                error={Boolean(touched.model && errors.model)}
-                fullWidth
-                helperText={touched.model && errors.model}
-                label="Model"
-                margin="normal"
-                name="model"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                type="text"
-                value={values.model}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item xs={2} md={1}>
-            {/*  textfield for height input */}
-              <TextField
-                multiline
-                error={Boolean(touched.height && errors.height)}
-                fullWidth
-                helperText={touched.height && errors.height}
-                label="Height"
-                margin="normal"
-                name="height"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                type="number"
-                value={values.height}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item xs={2} md={1}>
-            {/*  textfield for width input */}
-              <TextField
-                multiline
-                error={Boolean(touched.width && errors.width)}
-                fullWidth
-                helperText={touched.width && errors.width}
-                label="Width"
-                margin="normal"
-                name="width"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                type="number"
-                value={values.width}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item xs={2} md={1}>
-              <TextField
-                multiline
-                error={Boolean(touched.seed && errors.seed)}
-                fullWidth
-                helperText={touched.seed && errors.seed}
-                label="Seed"
-                margin="normal"
-                name="seed"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                type="number"
-                value={values.seed}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item xs={2} md={1}>
-            {/*  textfield for guidance scale input */}
-              <TextField
-                multiline
-                error={Boolean(touched.guidance_scale && errors.guidance_scale)}
-                fullWidth
-                helperText={touched.guidance_scale && errors.guidance_scale}
-                label="Guidance"
-                margin="normal"
-                name="guidance_scale"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                type="number"
-                value={values.guidance_scale}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item xs={2} md={1}>
-            {/*  textfield for num inference steps input */}
-              <TextField
-                multiline
-                error={Boolean(touched.num_inference_steps && errors.num_inference_steps)}
-                fullWidth
-                helperText={touched.num_inference_steps && errors.num_inference_steps}
-                label="Steps"
-                margin="normal"
-                name="num_inference_steps"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                type="number"
-                value={values.num_inference_steps}
-                variant="outlined"
-              />
-            </Grid>
-          </Grid>
+
         </form>
       )}
     </Formik>
