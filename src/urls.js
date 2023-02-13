@@ -15,8 +15,8 @@ const urls = {
   },
   ai_tools: {
     text_to_img: text_to_img_server + 'generate_image/',
-    runpod_run: 'https://api.runpod.ai/v1/d1f0gzvowhfr3t/run',
-    runpod_status: 'https://api.runpod.ai/v1/d1f0gzvowhfr3t/status/',
+    runpod_run: 'https://api.runpod.ai/v1/v9zir5v2o6ezbl/run',
+    runpod_status: 'https://api.runpod.ai/v1/v9zir5v2o6ezbl/status/',
   }
 }
 

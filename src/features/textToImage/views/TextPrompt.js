@@ -22,6 +22,7 @@ const ai_tools_urls = urls.ai_tools;
 const text_to_image_url = ai_tools_urls.text_to_img;
 const runpod_run_url = ai_tools_urls.runpod_run;
 const runpod_status_url = ai_tools_urls.runpod_status;
+const runpod_api_key = process.env.REACT_APP_RUNPOD_API_KEY;
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -41,88 +42,123 @@ const txt2img_internal = async (url, values) => {
   });
 }
 
-const txt2img_runpod = async (
-  run_url = runpod_run_url,
-  status_url = runpod_status_url,
-  run_data) => {
-
-  const runpod_key = process.env.REACT_APP_RUNPOD_API_KEY;
-
-  const status_response = await axios.post(run_url, run_data, {
-    responseType: "json",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${runpod_key}`
-    }
-  });
-  // status_response:
+async function runpodStatusOutput(id, num_errors=0, status_url=runpod_status_url, runpod_key=runpod_api_key, delay=1500) {
+  // in progress run_response:
   // {
+  //     "delayTime": 2624,
   //     "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
-  //     "status": "IN_QUEUE"
+  //     "input": {
+  //         "prompt": "a cute magical flying dog, fantasy art drawn by disney concept artists"
+  //     },
+  //     "status": "IN_PROGRESS"
   // }
-
-  console.log("run_url response:", status_response);
-  const status_id = status_response.data.id;
-  const status = status_response.data.status;
-
-  async function getStatusOutput() {
-    // in progress status_response:
-    // {
-    //     "delayTime": 2624,
-    //     "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
-    //     "input": {
-    //         "prompt": "a cute magical flying dog, fantasy art drawn by disney concept artists"
-    //     },
-    //     "status": "IN_PROGRESS"
-    // }
-    // completed status_response:
-    // {
-    //   "delayTime": 123456, // (milliseconds) time in queue
-    //   "executionTime": 1234, // (milliseconds) time it took to complete the job
-    //   "gpu": "24", // gpu type used to run the job
-    //   "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
-    //   "input": {
-    //     "prompt": "a cute magical flying dog, fantasy art drawn by disney concept artists"
-    //   },
-    //   "output": [
-    //     {
-    //       "image": "https://job.results1",
-    //       "seed": 1
-    //     },
-    //     {
-    //       "image": "https://job.results2",
-    //       "seed": 2
-    //     }
-    //   ],
-    //   "status": "COMPLETED"
-    // }
+  // completed run_response:
+  // {
+  //   "delayTime": 123456, // (milliseconds) time in queue
+  //   "executionTime": 1234, // (milliseconds) time it took to complete the job
+  //   "gpu": "24", // gpu type used to run the job
+  //   "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
+  //   "input": {
+  //     "prompt": "a cute magical flying dog, fantasy art drawn by disney concept artists"
+  //   },
+  //   "output": [
+  //     {
+  //       "image": "https://job.results1",
+  //       "seed": 1
+  //     },
+  //     {
+  //       "image": "https://job.results2",
+  //       "seed": 2
+  //     }
+  //   ],
+  //   "status": "COMPLETED"
+  // }
+  const num_retries_on_500 = 2;
+  try {
     while (true) {
-      const status_response = await axios.get(status_url + status_id, {
+
+      const status_response = await axios.get(status_url + id, {
         responseType: "json",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${runpod_key}`
         }
       });
-      console.log("status_url response:", status_response);
-      const status = status_response.data.status;
-      if (status === "IN_PROGRESS") {
-        console.log("IN_PROGRESS");
-        await new Promise(resolve => setTimeout(resolve, 3000));
-      } else if (status === "IN_QUEUE") {
-        console.log("IN_QUEUE");
-        await new Promise(resolve => setTimeout(resolve, 3000));
-      } else if (status === "COMPLETED") {
-        console.log("COMPLETED");
-        return status_response.data.output;
-      } else if (status === "FAILED") {
-        console.log("FAILED");
+
+      let http_status = status_response.status;
+      console.log(`http status: ${http_status}, status_url response: ${status_response}`);
+
+      let response_500_num = 0;
+
+      if (http_status === 500 && response_500_num < 3) {
+        console.log(`http_status: ${http_status}, response_500_num: ${response_500_num}, error response: ${status_response}`)
+        response_500_num += 1;
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
+      else if (http_status === 200) {
+        console.log(`http_status: ${http_status}, response: ${status_response}`)
+        const status = status_response.data.status;
+        if (status === "IN_PROGRESS") {
+          console.log("IN_PROGRESS");
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else if (status === "IN_QUEUE") {
+          console.log("IN_QUEUE");
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else if (status === "COMPLETED") {
+          console.log("COMPLETED");
+          return status_response.data.output;
+        } else if (status === "FAILED") {
+          console.log("FAILED");
+          return null;
+        } else {
+          console.log(`http_status: ${http_status}, unexpected response: ${status_response}`);
+          return null;
+        }
+
+      } else {
+        console.log(`unexpected http status: ${http_status}, unexpected response: ${status_response}`);
         return null;
       }
+
     }
   }
+  catch (e) {
+    console.error(`Unexcpected error: ${e}`);
+    // in some cases runpod status returns 500 error, but the job is actually completed. So we retry a few times
+    if (num_errors < num_retries_on_500) {
+      num_errors += 1;
+      return await runpodStatusOutput(id, num_errors);
+    } else {
+      console.error(`Too many errors: ${num_errors}`);
+      return null;
+    }
+  }
+}
 
-  const output = await getStatusOutput();
+const txt2img_runpod = async (
+  input_data,
+  run_url = runpod_run_url,
+  runpod_key = runpod_api_key
+) => {
+
+  const run_response = await axios.post(run_url, input_data, {
+    responseType: "json",
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${runpod_key}`
+    }
+  });
+  // run_response:
+  // {
+  //     "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
+  //     "status": "IN_QUEUE"
+  // }
+
+  console.log("run_url response:", run_response);
+  const run_id = run_response.data.id;
+  // const run_status = run_response.data.status;
+  const output = await runpodStatusOutput(run_id);
   console.log("status_url response:", output);
 
   return output;
@@ -138,10 +174,10 @@ const Prompt = ({ className, ...rest }) => {
         text: 'a pinochio steampunk robot, bar lighting serving coffee and chips, highly detailed, digital painting, artstation, concept art, sharp focus, cinematic lighting, illustration, artgerm, greg rutkowski, alphonse mucha, cgsociety, octane render, unreal engine 5',
         model: 'stabilityai/stable-diffusion-2',
         seed: 1024,
-        height: 512,
-        width: 512,
+        height: 768,
+        width: 768,
         guidance_scale: 7.5,
-        num_inference_steps: 10,
+        num_inference_steps: 50,
         submit: null
       }}
       validationSchema={Yup.object().shape({
@@ -159,7 +195,7 @@ const Prompt = ({ className, ...rest }) => {
           //   responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
           // });
 
-          let runpod_run_data = {
+          let runpod_run_input_data = {
             'input': {
               'prompt': values.text,
               'model': values.model,
@@ -171,7 +207,8 @@ const Prompt = ({ className, ...rest }) => {
             }
           }
 
-          const base64ImageString = await txt2img_runpod(runpod_run_url, runpod_status_url, runpod_run_data);
+          const base64ImageString = await txt2img_runpod(runpod_run_input_data);
+          // const base64ImageString = await runpodStatusOutput('8966803d-bf3f-438b-994d-5689bfc3e591');  //88344ebb-2a58-41f1-b551-77201a689d6e
           // const base64ImageString = 'debug'
 
           // convert the ArrayBuffer to a base64 encoded string
