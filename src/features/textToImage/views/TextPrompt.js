@@ -14,7 +14,7 @@ import {
   Card,
   CardContent,
   CardHeader,
-  IconButton, Accordion, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails
+  IconButton, Accordion, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Select, MenuItem,
 } from '@material-ui/core';
 import useIsMountedRef from 'src/hooks/useIsMountedRef';
 import axios from "axios";
@@ -44,7 +44,12 @@ const useStyles = makeStyles((theme) => ({
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
     }
-  }
+  },
+  // select: {
+  //   '&:focus': {
+  //     backgroundColor: theme.palette.background.paper,
+  //   }
+  // },
 }));
 
 const txt2img_internal = async (url, values) => {
@@ -185,20 +190,37 @@ const Prompt = ({ className, ...rest }) => {
     setExpanded(isExpanded ? panel : false);
   };
 
+  const model_options = [
+    {value: 'stabilityai/stable-diffusion-2', label: 'Stable Diffusion 2'},
+    // {value: 'CompVis/stable-diffusion-v1-4', label: 'Stable Diffusion 1.4'},
+  ]
+
+  const img_size_options = [
+    {value: 256, label: '256'},
+    {value: 512, label: '512'},
+    {value: 768, label: '768'},
+    {value: 1024, label: '1024'},
+  ]
+
   return (
     <Formik
       initialValues={{
         text: 'a pinochio steampunk robot, bar lighting serving coffee and chips, highly detailed, digital painting, artstation, concept art, sharp focus, cinematic lighting, illustration, artgerm, greg rutkowski, alphonse mucha, cgsociety, octane render, unreal engine 5',
-        model: 'stabilityai/stable-diffusion-2',
+        model: model_options[0].value,
         seed: 1024,
-        height: 768,
-        width: 768,
+        height: img_size_options[2].value,
+        width: img_size_options[1].value,
         guidance_scale: 7.5,
         num_inference_steps: 50,
         submit: null
       }}
       validationSchema={Yup.object().shape({
         text: Yup.string().max(3500).required('Give me an image description!'),
+        seed: Yup.number().integer().required('Seed is required'),
+        height: Yup.number().integer().required('Height is required'),
+        width: Yup.number().integer().required('Width is required'),
+        guidance_scale: Yup.number().min(0).required('Guidance scale is required'),
+        num_inference_steps: Yup.number().integer().min(1).max(200).required('Number of inference steps is required'),
       })}
       onSubmit={async (values, {
         setErrors,
@@ -224,6 +246,8 @@ const Prompt = ({ className, ...rest }) => {
             }
           }
 
+          // console.log("runpod_run_input_data:", runpod_run_input_data)
+          
           const base64ImageString = await txt2img_runpod(runpod_run_input_data);
           // const base64ImageString = await runpodStatusOutput('47052042-822a-4644-ad4a-e303a4a74383');  //8966803d-bf3f-438b-994d-5689bfc3e591 88344ebb-2a58-41f1-b551-77201a689d6e 47052042-822a-4644-ad4a-e303a4a74383
           // const base64ImageString = 'debug'
@@ -318,25 +342,38 @@ const Prompt = ({ className, ...rest }) => {
               <ExpansionPanelDetails>
                 <Grid container direction="row" justify="space-between" alignItems="center" collapse>
                   <Grid item className={classes.settings} xs={12} md={4} lg={4} >
+                    <Typography variant="h3">
                     <TextField
-                      multiline
-                      error={Boolean(touched.model && errors.model)}
-                      fullWidth
-                      helperText={touched.model && errors.model}
-                      label="Model"
-                      margin="normal"
+                      select
+                      SelectProps={{ native: true }}
+                      InputLabelProps={{ shrink: true }}
+                      inputProps={{ 'aria-label': 'model' }}
                       name="model"
+                      label="Model"
+                      variant="outlined"
+                      margin="normal"
+                      fullWidth
+                      error={Boolean(touched.model && errors.model)}
+                      helperText={touched.model && errors.model}
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      type="text"
                       value={values.model}
-                      variant="outlined"
-                    />
+                    >
+                      {model_options.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </TextField>
+                      </Typography>
                   </Grid>
                   <Grid item className={classes.settings} xs={6} md={1}>
                   {/*  textfield for height input */}
                     <TextField
-                      multiline
+                      select
+                      SelectProps={{ native: true }}
+                      InputLabelProps={{ shrink: true }}
+                      inputProps={{ 'aria-label': 'model' }}
                       error={Boolean(touched.height && errors.height)}
                       fullWidth
                       helperText={touched.height && errors.height}
@@ -348,12 +385,21 @@ const Prompt = ({ className, ...rest }) => {
                       type="number"
                       value={values.height}
                       variant="outlined"
-                    />
+                    >
+                      {img_size_options.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </TextField>
                   </Grid>
                   <Grid item className={classes.settings} xs={6} md={1}>
                   {/*  textfield for width input */}
                     <TextField
-                      multiline
+                      select
+                      SelectProps={{ native: true }}
+                      InputLabelProps={{ shrink: true }}
+                      inputProps={{ 'aria-label': 'model' }}
                       error={Boolean(touched.width && errors.width)}
                       fullWidth
                       helperText={touched.width && errors.width}
@@ -365,11 +411,18 @@ const Prompt = ({ className, ...rest }) => {
                       type="number"
                       value={values.width}
                       variant="outlined"
-                    />
+                    >
+                      {img_size_options.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </TextField>
                   </Grid>
                   <Grid item className={classes.settings} xs={6} md={2}>
                     <TextField
-                      multiline
+                      // inputProps={{ type: 'number', pattern: "[0-9]*" }}
+                      type="number"
                       error={Boolean(touched.seed && errors.seed)}
                       fullWidth
                       helperText={touched.seed && errors.seed}
@@ -378,7 +431,6 @@ const Prompt = ({ className, ...rest }) => {
                       name="seed"
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      type="number"
                       value={values.seed}
                       variant="outlined"
                     />
@@ -386,7 +438,7 @@ const Prompt = ({ className, ...rest }) => {
                   <Grid item className={classes.settings} xs={6} md={1}>
                   {/*  textfield for guidance scale input */}
                     <TextField
-                      multiline
+                      type="number"
                       error={Boolean(touched.guidance_scale && errors.guidance_scale)}
                       fullWidth
                       helperText={touched.guidance_scale && errors.guidance_scale}
@@ -395,7 +447,6 @@ const Prompt = ({ className, ...rest }) => {
                       name="guidance_scale"
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      type="number"
                       value={values.guidance_scale}
                       variant="outlined"
                     />
@@ -403,7 +454,7 @@ const Prompt = ({ className, ...rest }) => {
                   <Grid item className={classes.settings} xs={6} md={1}>
                   {/*  textfield for num inference steps input */}
                     <TextField
-                      multiline
+                      type="number"
                       error={Boolean(touched.num_inference_steps && errors.num_inference_steps)}
                       fullWidth
                       helperText={touched.num_inference_steps && errors.num_inference_steps}
@@ -412,7 +463,6 @@ const Prompt = ({ className, ...rest }) => {
                       name="num_inference_steps"
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      type="number"
                       value={values.num_inference_steps}
                       variant="outlined"
                     />
