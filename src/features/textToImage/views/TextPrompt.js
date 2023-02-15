@@ -23,6 +23,7 @@ import store from "../../../store";
 import {messagesSlice} from 'src/features/Messages/messagesSlice';
 import {imagesSlice} from "../imagesSlice";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import {model_options} from "../text2img_models";
 
 const ai_tools_urls = urls.ai_tools;
 // const text_to_image_url = ai_tools_urls.text_to_img;
@@ -189,11 +190,6 @@ const Prompt = ({ className, ...rest }) => {
   const handlePanelChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
-
-  const model_options = [
-    {value: 'stabilityai/stable-diffusion-2', label: 'Stable Diffusion 2'},
-    // {value: 'CompVis/stable-diffusion-v1-4', label: 'Stable Diffusion 1.4'},
-  ]
 
   const img_size_options = [
     {value: 256, label: '256'},

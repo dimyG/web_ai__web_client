@@ -28,6 +28,9 @@ import GetAlgorithms from "./features/algorithms/GetAlgorithms";
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 const history = createBrowserHistory();
 
+// todo: loading during inference
+// todo: dummy inference on load to warm the server
+// todo: image actions: download, like, save
 const App = () => {
   const { settings } = useSettings();
 
