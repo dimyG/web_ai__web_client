@@ -31,6 +31,7 @@ const history = createBrowserHistory();
 // todo: loading during inference
 // todo: dummy inference on load to warm the server
 // todo: image actions: download, like, save
+// todo: use of refresh token to keep user logged in
 const App = () => {
   const { settings } = useSettings();
 
