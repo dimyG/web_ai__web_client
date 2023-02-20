@@ -26,10 +26,12 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {model_options} from "../text2img_models";
 
 const ai_tools_urls = urls.ai_tools;
-// const text_to_image_url = ai_tools_urls.text_to_img;
+const text_to_image_url = ai_tools_urls.text_to_img;
 const runpod_run_url = ai_tools_urls.runpod_run;
 const runpod_status_url = ai_tools_urls.runpod_status;
 const runpod_api_key = process.env.REACT_APP_RUNPOD_API_KEY;
+
+// text_to_image_url = 'http://127.0.0.1:8002/' + 'generate_image/'
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -56,6 +58,14 @@ const useStyles = makeStyles((theme) => ({
 const txt2img_internal = async (url, values) => {
   return await axios.post(url, null, {
     params: {prompt: values.text},
+    responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
+  });
+}
+
+const pre_inference_api = async (data, url = text_to_image_url) => {
+  // let post_data = data['input']
+  return await axios.post(url, null, {
+    params: data,
     responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
   });
 }
@@ -243,13 +253,17 @@ const Prompt = ({ className, ...rest }) => {
           }
 
           // console.log("runpod_run_input_data:", runpod_run_input_data)
-          
-          const base64ImageString = await txt2img_runpod(runpod_run_input_data);
+
+          const arraybufferResponse = await pre_inference_api(runpod_run_input_data['input']);
+          // const base64ImageString = await txt2img_runpod(runpod_run_input_data);
+
           // const base64ImageString = await runpodStatusOutput('47052042-822a-4644-ad4a-e303a4a74383');  //8966803d-bf3f-438b-994d-5689bfc3e591 88344ebb-2a58-41f1-b551-77201a689d6e 47052042-822a-4644-ad4a-e303a4a74383
           // const base64ImageString = 'debug'
 
+          // const arraybufferResponse = await txt2img_runpod(runpod_run_input_data);  // responseType should be arraybuffer
           // convert the ArrayBuffer to a base64 encoded string
-          // let base64ImageString = Buffer.from(response.data, 'binary').toString('base64')
+
+          let base64ImageString = Buffer.from(arraybufferResponse.data, 'binary').toString('base64')
 
           // From the base64 string, create a "data URL" that can be used as the src attribute of an image.
           // A data URL is a URL scheme that allows for the inclusion of small data items as "immediate" data,
