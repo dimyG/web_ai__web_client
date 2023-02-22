@@ -66,7 +66,9 @@ const themesOptions = [
         default: colors.common.white,
         dark: '#f4f6f8',
         paper: colors.common.white,
-        secondary: fade(colors.indigo[600], 0.9)
+        secondary: fade(colors.indigo[600], 0.9),
+        third: colors.indigo[400],
+        fourth: colors.indigo[700]
       },
       primary: {
         main: colors.indigo[600]
@@ -76,7 +78,7 @@ const themesOptions = [
       },
       text: {
         primary: colors.blueGrey[900],
-        secondary: colors.blueGrey[600]
+        secondary: '#e6e5e8',
       }
     },
     heapCirclesTheme: {
@@ -105,7 +107,9 @@ const themesOptions = [
         default: '#282C34',
         dark: '#1c2025',
         paper: '#282C34',
-        secondary: fade('#8a85ff', 0.9)
+        secondary: fade('#8a85ff', 0.9),
+        third: colors.indigo[500],
+        fourth: colors.indigo[700]
       },
       primary: {
         main: '#8a85ff'
@@ -115,7 +119,7 @@ const themesOptions = [
       },
       text: {
         primary: '#e6e5e8',
-        secondary: '#adb0bb'
+        secondary: '#adb0bb',
       }
     },
     heapCirclesTheme: {
@@ -144,7 +148,9 @@ const themesOptions = [
         default: '#2a2d3d',
         dark: '#222431',
         paper: '#2a2d3d',
-        secondary: fade('#a67dff', 0.9)
+        secondary: fade('#a67dff', 0.9),
+        third: colors.indigo[500],
+        fourth: colors.indigo[700]
       },
       primary: {
         main: '#a67dff'
@@ -154,7 +160,7 @@ const themesOptions = [
       },
       text: {
         primary: '#f6f5f8',
-        secondary: '#9699a4'
+        secondary: '#9699a4',
       }
     },
     heapCirclesTheme: {

@@ -29,8 +29,10 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.leavingScreen
     }),
     '&:hover': {
-      transform: 'scale(1.1)'
-    }
+      transform: 'scale(1.025)'
+    },
+    backgroundColor: theme.palette.background.third,
+    color: theme.palette.common.white  // the color of the text
   },
   productImage: {
     borderRadius: theme.shape.borderRadius,
@@ -42,11 +44,17 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 24
   },
   recommendedProduct: {
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.background.fourth,
     color: theme.palette.common.white
   },
   chooseButton: {
     backgroundColor: theme.palette.common.white
+  },
+  emphasis: {
+    color: theme.palette.secondary.main
+  },
+  container: {
+    justifyContent: 'center'
   }
 }));
 
@@ -58,35 +66,37 @@ const PricingView = () => {
       className={classes.root}
       title="Pricing"
     >
-      <Container maxWidth="sm">
+      <Container maxWidth="md">
         <Typography
           align="center"
           variant="h1"
           color="textPrimary"
         >
-          Start today. Boost up your services!
+          Unleash your <span className={classes.emphasis}>potential</span> with magic <span className={classes.emphasis}>AI tools!</span>
         </Typography>
-        <Box mt={3}>
-          <Typography
-            align="center"
-            variant="subtitle1"
-            color="textSecondary"
-          >
-            Welcome to the first platform created for freelancers and agencies
-            for showcasing and finding the best clinets in the market.
-            30% of our income goes into Whale Charity
-          </Typography>
-        </Box>
+        {/*<Box mt={3}>*/}
+        {/*  <Typography*/}
+        {/*    align="center"*/}
+        {/*    variant="subtitle1"*/}
+        {/*    color="textSecondary"*/}
+        {/*  >*/}
+        {/*    Welcome to the first platform created for freelancers and agencies*/}
+        {/*    for showcasing and finding the best clinets in the market.*/}
+        {/*    30% of our income goes into Whale Charity*/}
+        {/*  </Typography>*/}
+        {/*</Box>*/}
       </Container>
       <Box mt="160px">
         <Container maxWidth="lg">
           <Grid
             container
             spacing={4}
+            className={classes.container}
           >
             <Grid
               item
               md={4}
+              sm={6}
               xs={12}
             >
               <Paper
@@ -96,54 +106,53 @@ const PricingView = () => {
                 <img
                   alt="Product"
                   className={classes.productImage}
-                  src="/static/images/products/product_standard.svg"
+                  src="/static/images/products/product_premium--outlined.svg"
+                  color={'primary'}
                 />
                 <Typography
                   component="h3"
                   gutterBottom
                   variant="overline"
-                  color="textSecondary"
+                  // color="inherit"
                 >
-                  Standard
+                  Free
                 </Typography>
                 <div>
                   <Typography
                     component="span"
                     display="inline"
                     variant="h3"
-                    color="textPrimary"
+                    // color="textPrimary"
                   >
-                    $5
+                    {/*$5*/}<br/>
                   </Typography>
                   <Typography
                     component="span"
                     display="inline"
                     variant="subtitle2"
-                    color="textSecondary"
+                    // color="textSecondary"
                   >
-                    /month
+                    {/*/month*/}
                   </Typography>
                 </div>
                 <Typography
                   variant="overline"
-                  color="textSecondary"
+                  // color="textSecondary"
                 >
-                  Max 1 user
+                  {/*Max 1 user*/}
                 </Typography>
                 <Box my={2}>
                   <Divider />
                 </Box>
                 <Typography
                   variant="body2"
-                  color="textPrimary"
+                  // color="textPrimary"
                 >
-                  20 proposals/month
+                  Create 100 images/day
                   <br />
-                  10 templates
+                  Use images commercially
                   <br />
-                  Analytics dashboard
-                  <br />
-                  Email alerts
+                  Some waiting period for image creation
                 </Typography>
                 <Box my={2}>
                   <Divider />
@@ -152,14 +161,16 @@ const PricingView = () => {
                   variant="contained"
                   fullWidth
                   className={classes.chooseButton}
+                  disabled={true}
                 >
-                  Choose
+                  Active
                 </Button>
               </Paper>
             </Grid>
             <Grid
               item
               md={4}
+              sm={6}
               xs={12}
             >
               <Paper
@@ -169,7 +180,7 @@ const PricingView = () => {
                 <img
                   alt="Product"
                   className={classes.productImage}
-                  src="/static/images/products/product_premium--outlined.svg"
+                  src="/static/images/products/product_premium.svg"
                 />
                 <Typography
                   component="h3"
@@ -186,7 +197,7 @@ const PricingView = () => {
                     variant="h3"
                     color="inherit"
                   >
-                    $29
+                    €15
                   </Typography>
                   <Typography
                     component="span"
@@ -201,7 +212,7 @@ const PricingView = () => {
                   variant="overline"
                   color="inherit"
                 >
-                  Max 3 user
+                  {/*Max 3 user*/}
                 </Typography>
                 <Box my={2}>
                   <Divider />
@@ -210,13 +221,11 @@ const PricingView = () => {
                   variant="body2"
                   color="inherit"
                 >
-                  20 proposals/month
+                  Everything Free tier has
                   <br />
-                  10 templates
+                  + Create 2000 images/day
                   <br />
-                  Analytics dashboard
-                  <br />
-                  Email alerts
+                  + Faster image creation
                 </Typography>
                 <Box my={2}>
                   <Divider />
@@ -230,79 +239,79 @@ const PricingView = () => {
                 </Button>
               </Paper>
             </Grid>
-            <Grid
-              item
-              md={4}
-              xs={12}
-            >
-              <Paper
-                className={classes.product}
-                elevation={1}
-              >
-                <img
-                  alt="Product"
-                  className={classes.productImage}
-                  src="/static/images/products/product_extended.svg"
-                />
-                <Typography
-                  component="h3"
-                  gutterBottom
-                  variant="overline"
-                  color="textSecondary"
-                >
-                  Extended
-                </Typography>
-                <div>
-                  <Typography
-                    component="span"
-                    display="inline"
-                    variant="h3"
-                    color="textPrimary"
-                  >
-                    $259
-                  </Typography>
-                  <Typography
-                    component="span"
-                    display="inline"
-                    variant="subtitle2"
-                    color="textSecondary"
-                  >
-                    /month
-                  </Typography>
-                </div>
-                <Typography
-                  variant="overline"
-                  color="textSecondary"
-                >
-                  Unlimited
-                </Typography>
-                <Box my={2}>
-                  <Divider />
-                </Box>
-                <Typography
-                  variant="body2"
-                  color="textPrimary"
-                >
-                  All from above
-                  <br />
-                  Unlimited 24/7 support
-                  <br />
-                  Personalised Page
-                  <br />
-                  Advertise your profile
-                </Typography>
-                <Box my={2}>
-                  <Divider />
-                </Box>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  className={classes.chooseButton}
-                >
-                  Choose
-                </Button>
-              </Paper>
-            </Grid>
+            {/*<Grid*/}
+            {/*  item*/}
+            {/*  md={4}*/}
+            {/*  xs={12}*/}
+            {/*>*/}
+            {/*  <Paper*/}
+            {/*    className={classes.product}*/}
+            {/*    elevation={1}*/}
+            {/*  >*/}
+            {/*    <img*/}
+            {/*      alt="Product"*/}
+            {/*      className={classes.productImage}*/}
+            {/*      src="/static/images/products/product_extended.svg"*/}
+            {/*    />*/}
+            {/*    <Typography*/}
+            {/*      component="h3"*/}
+            {/*      gutterBottom*/}
+            {/*      variant="overline"*/}
+            {/*      color="textSecondary"*/}
+            {/*    >*/}
+            {/*      Extended*/}
+            {/*    </Typography>*/}
+            {/*    <div>*/}
+            {/*      <Typography*/}
+            {/*        component="span"*/}
+            {/*        display="inline"*/}
+            {/*        variant="h3"*/}
+            {/*        color="textPrimary"*/}
+            {/*      >*/}
+            {/*        $259*/}
+            {/*      </Typography>*/}
+            {/*      <Typography*/}
+            {/*        component="span"*/}
+            {/*        display="inline"*/}
+            {/*        variant="subtitle2"*/}
+            {/*        color="textSecondary"*/}
+            {/*      >*/}
+            {/*        /month*/}
+            {/*      </Typography>*/}
+            {/*    </div>*/}
+            {/*    <Typography*/}
+            {/*      variant="overline"*/}
+            {/*      color="textSecondary"*/}
+            {/*    >*/}
+            {/*      Unlimited*/}
+            {/*    </Typography>*/}
+            {/*    <Box my={2}>*/}
+            {/*      <Divider />*/}
+            {/*    </Box>*/}
+            {/*    <Typography*/}
+            {/*      variant="body2"*/}
+            {/*      color="textPrimary"*/}
+            {/*    >*/}
+            {/*      All from above*/}
+            {/*      <br />*/}
+            {/*      Unlimited 24/7 support*/}
+            {/*      <br />*/}
+            {/*      Personalised Page*/}
+            {/*      <br />*/}
+            {/*      Advertise your profile*/}
+            {/*    </Typography>*/}
+            {/*    <Box my={2}>*/}
+            {/*      <Divider />*/}
+            {/*    </Box>*/}
+            {/*    <Button*/}
+            {/*      variant="contained"*/}
+            {/*      fullWidth*/}
+            {/*      className={classes.chooseButton}*/}
+            {/*    >*/}
+            {/*      Choose*/}
+            {/*    </Button>*/}
+            {/*  </Paper>*/}
+            {/*</Grid>*/}
           </Grid>
         </Container>
       </Box>
