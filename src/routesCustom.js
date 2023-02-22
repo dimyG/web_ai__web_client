@@ -79,6 +79,12 @@ const routes = [
   },
   {
     exact: true,
+    // guard: GuestGuard,
+    path: '/pricing',
+    component: lazy(() => import('src/views/pricing/PricingView'))
+  },
+  {
+    exact: true,
     path: '/about',
     layout: DashboardLayout,
     component: About

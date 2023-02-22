@@ -93,6 +93,23 @@ const Register = () => {
   )
 }
 
+const Pricing = () => {
+  const classes = useStyles()
+
+  return (
+    <Button
+      component={RouterLink}
+      to="/pricing"
+      color="secondary"
+      variant="text"
+      className={classes.topBarButton}
+      size='small'
+    >
+      <Box color="white">Pricing</Box>
+    </Button>
+  )
+}
+
 const TopBar = ({
   className,
   onMobileNavOpen,
@@ -131,6 +148,7 @@ const TopBar = ({
         {/*<Notifications />*/}
         <Login/>
         <Register/>
+        <Pricing/>
         <Settings />
         { user? (
           <Box ml={2}>
