@@ -14,7 +14,7 @@ import {
   Card,
   CardContent,
   CardHeader,
-  IconButton, Accordion, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Select, MenuItem,
+  IconButton, Accordion, AccordionSummary, AccordionDetails, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Select, MenuItem,
 } from '@material-ui/core';
 import useIsMountedRef from 'src/hooks/useIsMountedRef';
 import axios from "axios";
@@ -345,11 +345,11 @@ const Prompt = ({ className, ...rest }) => {
           </Card >
 
           <Box mt={3} id={'settings-container'}>
-            <ExpansionPanel expanded={expanded === 'panel1'} onChange={handlePanelChange('panel1')}>
-              <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
+            <Accordion expanded={expanded === 'panel1'} onChange={handlePanelChange('panel1')}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1bh-content" id="panel1bh-header">
                 <Typography className={classes.heading}>Settings</Typography>
-              </ExpansionPanelSummary>
-              <ExpansionPanelDetails>
+              </AccordionSummary>
+              <AccordionDetails>
                 <Grid container direction="row" justify="space-between" alignItems="center" collapse>
                   <Grid item className={classes.settings} xs={12} md={4} lg={4} >
                     <Typography variant="h3">
@@ -478,8 +478,8 @@ const Prompt = ({ className, ...rest }) => {
                     />
                   </Grid>
                 </Grid>
-              </ExpansionPanelDetails>
-            </ExpansionPanel>
+              </AccordionDetails>
+            </Accordion>
           </Box>
 
         </form>

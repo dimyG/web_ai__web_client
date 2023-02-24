@@ -1,6 +1,7 @@
 // The proxy directive in package.json can be removed. We use env variables to set the API service urls
 const auth_server = process.env.REACT_APP_AUTH_API_SERVICE;
 const text_to_img_server = process.env.REACT_APP_TEXT_TO_IMG_API_SERVICE;
+const payment_server = process.env.REACT_APP_PAYMENTS_API_SERVICE;
 
 const urls = {
   auth: {
@@ -17,6 +18,9 @@ const urls = {
     text_to_img: text_to_img_server + 'generate_image/',
     runpod_run: 'https://api.runpod.ai/v1/v9zir5v2o6ezbl/run',
     runpod_status: 'https://api.runpod.ai/v1/v9zir5v2o6ezbl/status/',
+  },
+  payments: {
+    create: payment_server + 'api/payments/',
   }
 }
 

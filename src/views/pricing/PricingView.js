@@ -11,6 +11,13 @@ import {
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
+import useAuth from "src/hooks/useAuth";
+import urls from "src/urls";
+import axios from 'axios';
+import {Redirect, useHistory, useLocation} from 'react-router-dom';
+import {updatePath} from "src/features/loginTargetPathSlice";
+import {useDispatch} from "react-redux";
+import {addMessage} from "src/features/Messages/messagesSlice";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,8 +38,12 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       transform: 'scale(1.025)'
     },
-    backgroundColor: theme.palette.background.third,
-    color: theme.palette.common.white  // the color of the text
+    // backgroundColor: theme.palette.background.third,
+    color: theme.palette.text.primary  // the color of the text
+  },
+  activeProduct: {
+    // no transform on hover
+    transform: 'none !important',
   },
   productImage: {
     borderRadius: theme.shape.borderRadius,
@@ -58,8 +69,41 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const payUrl = urls.payments.create;
+
 const PricingView = () => {
   const classes = useStyles();
+  const { user, isAuthenticated } = useAuth();
+  const history = useHistory();
+  const location = useLocation()
+  const dispatch = useDispatch()
+
+  const handleCheckout = async (amount) => {
+    // a function that makes a post payment request to payUrl using axios
+    // and then redirects to the payment page
+
+    // // If the user is not authenticated, redirect to the login page. after login, the user will be redirected to current location
+    if (!isAuthenticated) {
+      console.log('user is not authenticated')
+      const targetPath = !location.search ? location.pathname : `${location.pathname}/${location.search}`
+      dispatch(updatePath(targetPath))  // store the target path to global store to redirect the user there after login
+      history.push('/login');
+      return
+    }
+
+    const data = {'amount': amount}
+    const config = {}
+    try {
+      const response = await axios.post(payUrl, data, config);
+      let message = {text: 'Start creating!', mode: "success", seen: false}
+      dispatch(addMessage(message))
+      history.push('/');
+    } catch (error) {
+      // console.error('Error making payment:', error.response);
+      let message = {text: JSON.stringify(error.response.data), mode: "error", seen: false}
+      dispatch(addMessage(message))
+    }
+  }
 
   return (
     <Page
@@ -100,7 +144,7 @@ const PricingView = () => {
               xs={12}
             >
               <Paper
-                className={classes.product}
+                className={clsx(classes.product, classes.activeProduct)}  // {clsx(classes.product, user.tier === 'Premium' && classes.activeProduct),
                 elevation={1}
               >
                 <img
@@ -148,11 +192,11 @@ const PricingView = () => {
                   variant="body2"
                   // color="textPrimary"
                 >
-                  Create 100 images/day
+                  Create 10 images/day
                   <br />
                   Use images commercially
                   <br />
-                  Some waiting period for image creation
+                  Some delay for image creation
                 </Typography>
                 <Box my={2}>
                   <Divider />
@@ -234,8 +278,9 @@ const PricingView = () => {
                   variant="contained"
                   fullWidth
                   className={classes.chooseButton}
+                  onClick={() => handleCheckout(15)}
                 >
-                  Choose
+                  (fake) Checkout
                 </Button>
               </Paper>
             </Grid>
