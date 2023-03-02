@@ -5,8 +5,8 @@ import React, {
 } from 'react';
 import jwtDecode from 'jwt-decode';
 import SplashScreen from 'src/components/SplashScreen';
-// import axios from 'src/utils/axios';
-import axios from "axios"
+import {AxiosInstance2 as axios} from 'src/utils/axios';
+// import axios from "axios";
 import {useDispatch} from "react-redux";
 import {addMessage} from "../features/algorithms/algorithmsSlice";
 import {readCsrfFromCookie} from "../features/csrf/csrfSlice";
@@ -154,10 +154,11 @@ export const AuthProvider = ({ children }) => {
         password2: password2,
       });
       const accessToken = response.data.access_token
+      setSession(accessToken);
       const userData = response.data.user
       const user = createUser(userData.pk, userData.username, userData.email)
 
-      window.localStorage.setItem('accessToken', accessToken);
+      // window.localStorage.setItem('accessToken', accessToken);
 
       dispatch({
         type: 'REGISTER',

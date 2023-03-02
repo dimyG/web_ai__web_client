@@ -13,7 +13,8 @@ import {
 import Page from 'src/components/Page';
 import useAuth from "src/hooks/useAuth";
 import urls from "src/urls";
-import axios from 'axios';
+// import axios from 'axios';
+import {AxiosInstance2 as axios} from 'src/utils/axios';
 import {Redirect, useHistory, useLocation} from 'react-router-dom';
 import {updatePath} from "src/features/loginTargetPathSlice";
 import {useDispatch} from "react-redux";
@@ -80,7 +81,6 @@ const PricingView = () => {
 
   const handleCheckout = async (amount) => {
     // a function that makes a post payment request to payUrl using axios
-    // and then redirects to the payment page
 
     // // If the user is not authenticated, redirect to the login page. after login, the user will be redirected to current location
     if (!isAuthenticated) {
@@ -95,12 +95,12 @@ const PricingView = () => {
     const config = {}
     try {
       const response = await axios.post(payUrl, data, config);
-      let message = {text: 'Start creating!', mode: "success", seen: false}
+      let message = {text: 'All set!', mode: "success", seen: false}
       dispatch(addMessage(message))
       history.push('/');
     } catch (error) {
       // console.error('Error making payment:', error.response);
-      let message = {text: JSON.stringify(error.response.data), mode: "error", seen: false}
+      let message = {text: JSON.stringify(error), mode: "error", seen: false}
       dispatch(addMessage(message))
     }
   }

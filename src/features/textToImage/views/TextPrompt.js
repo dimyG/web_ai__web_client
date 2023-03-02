@@ -17,7 +17,8 @@ import {
   IconButton, Accordion, AccordionSummary, AccordionDetails, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Select, MenuItem,
 } from '@material-ui/core';
 import useIsMountedRef from 'src/hooks/useIsMountedRef';
-import axios from "axios";
+// import axios from "axios";
+import {AxiosInstance2 as axios} from 'src/utils/axios';
 import urls from 'src/urls';
 import store from "../../../store";
 import {messagesSlice} from 'src/features/Messages/messagesSlice';
