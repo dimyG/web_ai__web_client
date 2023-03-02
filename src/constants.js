@@ -8,6 +8,12 @@ export const THEMES = {
   UNICORN: 'UNICORN'
 };
 
+export const TIERS = {
+  free: 'Free',
+  basic: 'Basic',
+  premium: 'Premium'
+}
+
 export const minHeapId = 1
 export const demoLogin = process.env.REACT_APP_DEMO_LOGIN
 export const demoPassword = process.env.REACT_APP_DEMO_PASSWORD

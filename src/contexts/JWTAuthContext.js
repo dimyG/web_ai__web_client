@@ -12,6 +12,7 @@ import {addMessage} from "../features/algorithms/algorithmsSlice";
 import {readCsrfFromCookie} from "../features/csrf/csrfSlice";
 import urls from "src/urls";
 import {setSession} from "src/features/auth/utils";
+import {TIERS} from "src/constants";
 
 // const initialUser = {
 //   name: null,
@@ -25,11 +26,11 @@ const register_url = auth_urls.register
 
 const anonymousUser = null
 
-const createUser = (id, username, email = null, avatar = null) => {
+const createUser = (id, username, email = null, tier = TIERS.free, avatar = null) => {
   // 'name' and 'avatar' properties are used by the devias pro template in various places
   // console.log("creating user:", id, username, email, avatar)
   return id ? {
-    'id': id, 'name': username, 'email': email, 'avatar': avatar
+    'id': id, 'name': username, 'email': email, 'tier': tier, 'avatar': avatar
   } : anonymousUser
 }
 
@@ -106,13 +107,18 @@ export const AuthProvider = ({ children }) => {
   const reduxDispatch = useDispatch()
 
   const login = async (email, password) => {
-    // const response = await axios.post('/api/account/login', { email, password });
     try {
       const response = await axios.post(login_url, {email, password});
       const accessToken = response.data.access_token
       const refreshToken = response.data.refresh_token
       const userData = response.data.user
-      const user = createUser(userData.pk, userData.username, userData.email)
+      const jwt_claim = jwtDecode(accessToken)
+      // the userData response does not contain the tier yet, so we get it from the jwt claim todo: make it consistent
+      let tier = jwt_claim.tier
+      // Important: if you read the email from the jwt claim, use a variable name different from "email" because
+      // it caused an issue where the email argument was becoming undefined within the try block! (I don't know why)
+      // let jwtEmail = jwt_claim.email
+      const user = createUser(userData.pk, userData.username, userData.email, tier)
 
       reduxDispatch(readCsrfFromCookie())
       setSession(accessToken, refreshToken);
@@ -149,7 +155,10 @@ export const AuthProvider = ({ children }) => {
       const refreshToken = response.data.refresh_token
       setSession(accessToken, refreshToken);
       const userData = response.data.user
-      const user = createUser(userData.pk, userData.username, userData.email)
+      // the userData response does not contain the tier yet, so we get it from the jwt claim todo: make it consistent
+      const jwt_claim = jwtDecode(accessToken)
+      let tier = jwt_claim.tier
+      const user = createUser(userData.pk, userData.username, userData.email, tier)
 
       // window.localStorage.setItem('accessToken', accessToken);
 
@@ -183,8 +192,8 @@ export const AuthProvider = ({ children }) => {
           // the token is sent with the Authorization header set by the setSession function
 
           const jwt_claim = jwtDecode(accessToken)
-          const [id, username, email] = [jwt_claim.user_id, jwt_claim.username, jwt_claim.email]
-          const user = createUser(id, username, email)
+          const [id, username, email, tier] = [jwt_claim.user_id, jwt_claim.username, jwt_claim.email, jwt_claim.tier]
+          const user = createUser(id, username, email, tier)
 
           // Have in mind that user is not stored globally, it is stored in a Context, so no need to dispatch actions
 

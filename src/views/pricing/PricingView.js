@@ -13,12 +13,12 @@ import {
 import Page from 'src/components/Page';
 import useAuth from "src/hooks/useAuth";
 import urls from "src/urls";
-// import axios from 'axios';
 import {AxiosInstance2 as axios} from 'src/utils/axios';
 import {Redirect, useHistory, useLocation} from 'react-router-dom';
 import {updatePath} from "src/features/loginTargetPathSlice";
 import {useDispatch} from "react-redux";
 import {addMessage} from "src/features/Messages/messagesSlice";
+import {TIERS} from "src/constants";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -79,12 +79,12 @@ const PricingView = () => {
   const location = useLocation()
   const dispatch = useDispatch()
 
-  const handleCheckout = async (amount) => {
-    // a function that makes a post payment request to payUrl using axios
+  const freeOrUnauthenticatedUser = user? !isAuthenticated || user.tier === TIERS.free: true
+  const premiumUser = user? user.tier === TIERS.premium: false
 
+  const handleCheckout = async (amount) => {
     // // If the user is not authenticated, redirect to the login page. after login, the user will be redirected to current location
     if (!isAuthenticated) {
-      console.log('user is not authenticated')
       const targetPath = !location.search ? location.pathname : `${location.pathname}/${location.search}`
       dispatch(updatePath(targetPath))  // store the target path to global store to redirect the user there after login
       history.push('/login');
@@ -97,6 +97,7 @@ const PricingView = () => {
       const response = await axios.post(payUrl, data, config);
       let message = {text: 'All set!', mode: "success", seen: false}
       dispatch(addMessage(message))
+      user.tier = TIERS.premium  // modifying the context user object triggers a re-render
       history.push('/');
     } catch (error) {
       // console.error('Error making payment:', error.response);
@@ -144,7 +145,7 @@ const PricingView = () => {
               xs={12}
             >
               <Paper
-                className={clsx(classes.product, classes.activeProduct)}  // {clsx(classes.product, user.tier === 'Premium' && classes.activeProduct),
+                className={clsx(classes.product, classes.activeProduct)}
                 elevation={1}
               >
                 <img
@@ -218,7 +219,7 @@ const PricingView = () => {
               xs={12}
             >
               <Paper
-                className={clsx(classes.product, classes.recommendedProduct)}
+                className={clsx(classes.product, freeOrUnauthenticatedUser && classes.recommendedProduct, premiumUser && classes.activeProduct)}
                 elevation={1}
               >
                 <img
@@ -278,6 +279,7 @@ const PricingView = () => {
                   variant="contained"
                   fullWidth
                   className={classes.chooseButton}
+                  disabled={premiumUser}
                   onClick={() => handleCheckout(15)}
                 >
                   (fake) Checkout
