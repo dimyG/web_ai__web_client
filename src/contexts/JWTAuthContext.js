@@ -11,6 +11,7 @@ import {useDispatch} from "react-redux";
 import {addMessage} from "../features/algorithms/algorithmsSlice";
 import {readCsrfFromCookie} from "../features/csrf/csrfSlice";
 import urls from "src/urls";
+import {setSession} from "src/features/auth/utils";
 
 // const initialUser = {
 //   name: null,
@@ -47,16 +48,6 @@ const isValidToken = (accessToken) => {
   const currentTime = Date.now() / 1000;
 
   return decoded.exp > currentTime;
-};
-
-const setSession = (accessToken) => {
-  if (accessToken) {
-    localStorage.setItem('accessToken', accessToken);
-    axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-  } else {
-    localStorage.removeItem('accessToken');
-    delete axios.defaults.headers.common.Authorization;
-  }
 };
 
 const reducer = (state, action) => {
@@ -119,11 +110,12 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(login_url, {email, password});
       const accessToken = response.data.access_token
+      const refreshToken = response.data.refresh_token
       const userData = response.data.user
       const user = createUser(userData.pk, userData.username, userData.email)
 
       reduxDispatch(readCsrfFromCookie())
-      setSession(accessToken);
+      setSession(accessToken, refreshToken);
       dispatch({
         type: 'LOGIN',
         payload: {
@@ -138,7 +130,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const response = await axios.post(logout_url);
-      setSession(null);
+      setSession(null, null);
       dispatch({ type: 'LOGOUT' });
     } catch (error) {
       reduxDispatch(addMessage({text: `${error}`, mode: "error", seen: false}))
@@ -154,7 +146,8 @@ export const AuthProvider = ({ children }) => {
         password2: password2,
       });
       const accessToken = response.data.access_token
-      setSession(accessToken);
+      const refreshToken = response.data.refresh_token
+      setSession(accessToken, refreshToken);
       const userData = response.data.user
       const user = createUser(userData.pk, userData.username, userData.email)
 
@@ -180,11 +173,12 @@ export const AuthProvider = ({ children }) => {
     const initialise = async () => {
       try {
         const accessToken = window.localStorage.getItem('accessToken');
+        const refreshToken = window.localStorage.getItem('refreshToken');
 
         if (accessToken && isValidToken(accessToken)) {
           console.debug("accessToken is valid")
           // on reload page get the user so to be logged in if he has a valid jwt accessToken
-          setSession(accessToken);
+          setSession(accessToken, refreshToken);
 
           // the token is sent with the Authorization header set by the setSession function
 

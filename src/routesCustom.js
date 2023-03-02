@@ -89,12 +89,12 @@ const routes = [
     layout: DashboardLayout,
     component: About
   },
-  {
-    exact: true,
-    path: '*',
-    layout: DashboardLayout,
-    component: TextToImage
-  },
+  // {
+  //   exact: true,
+  //   path: '*',
+  //   layout: DashboardLayout,
+  //   component: TextToImage
+  // },
   // {
   //   exact: true,
   //   path: '/algorithms/list',
@@ -137,8 +137,8 @@ const routes = [
       {
         exact: true,
         path: '/',
-        component: () => <Redirect to={`/algorithms/list`} />
-        // todo use algorithm's slug in the url but have in mind that the slug might change from the user
+        component: TextToImage
+        // component: () => <Redirect to={`/algorithms/list`} />
       },
       {
         component: () => <Redirect to="/404" />
