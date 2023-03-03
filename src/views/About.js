@@ -25,8 +25,8 @@ const About = () => {
           <Typography align="justify">
             Hello dear visitor! <br/><br/>
             My name is Dimitris Georgoulas. I'm a full stack web developer.
-            I made this web app to familiarize myself with diffusion models. Have fun!
-            You can find more about me at my <Link target="_blank" href={"https://dimgeo.com/"} color="secondary">blog</Link>.
+            I made this web app to play with diffusion models and microservices.
+            You can find more about me at my <Link target="_blank" href={"https://dimgeo.com/"} color="secondary">blog</Link>. Have fun!
           </Typography>
         </CardContent>
       </Card>
