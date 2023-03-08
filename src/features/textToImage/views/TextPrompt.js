@@ -26,6 +26,8 @@ import {imagesSlice} from "../imagesSlice";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {model_options} from "../text2img_models";
 import {RunpodClient} from "src/utils/runpod";
+import {nanoid} from "@reduxjs/toolkit";
+// import {mockBase64ImageString} from "src/prompts.js"  // mock for debugging
 
 const ai_tools_urls = urls.ai_tools;
 const initiate_run_url = ai_tools_urls.initiate_run;
@@ -57,6 +59,19 @@ const Prompt = ({ className, ...rest }) => {
   const isMountedRef = useIsMountedRef();
 
   const [expanded, setExpanded] = React.useState(false);
+  const [run, setRun] = React.useState({run_id: null, img_placeholder_id: null});
+
+  React.useEffect(() => {
+    // when the "run" state changes, call the "poll_runpod_status" function
+    if (run.run_id) {
+      // const promise = mock_poll_runpod_status(run.img_placeholder_id, mockBase64ImageString)  // mock for debugging
+      const promise = poll_runpod_status(run.run_id, run.img_placeholder_id)
+    }
+    return () => {
+      // useEffect should return a cleanup function (not a promise) so
+      // we need to externally declare it when the effect calls an async function.
+    }
+  } , [run])
 
   const handlePanelChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
@@ -71,7 +86,7 @@ const Prompt = ({ className, ...rest }) => {
     {value: 1024, label: '1024'},
   ]
 
-  const poll_runpod_status = async (runpod_run_id, values) => {
+  const poll_runpod_status = async (runpod_run_id, img_placeholder_id) => {
     const delay = 2000;
     let run_status = null;
     let base64ImageString = null;
@@ -86,8 +101,8 @@ const Prompt = ({ className, ...rest }) => {
         // as if they were being referenced externally. The format of a data URL is data:[<media type>][;base64],<data>
         // data URLs have a limited size (2-3 MB)
         let img_src = "data:image/png;base64," + base64ImageString
-        let img_store_obj = {prompt: values.text, img_src: img_src}
-        store.dispatch(imagesSlice.actions.addImage(img_store_obj))
+        let upd_img_src = {id: img_placeholder_id, img_src: img_src}
+        store.dispatch(imagesSlice.actions.updateImage(upd_img_src))
         // store.dispatch(messagesSlice.actions.addMessage({text: response.data.prompt, mode: "success", seen: false}))
         break
       }
@@ -98,23 +113,23 @@ const Prompt = ({ className, ...rest }) => {
     return [run_status, base64ImageString];
   }
 
+  async function mock_poll_runpod_status(img_placeholder_id, mockBase64ImageString) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      let img_src = "data:image/png;base64," + mockBase64ImageString
+      let upd_img_src = {id: img_placeholder_id, img_src: img_src}
+      store.dispatch(imagesSlice.actions.updateImage(upd_img_src))
+  }
+
   const on_submit = async (values, { setErrors, setStatus, setSubmitting }) => {
     // We send a post request to our pre inference service which initiates a run on runpod and returns the run id.
     // Then we poll the runpod status endpoint from the web client until the run is completed.
     // The run is initiated from the back end to pre-process the request (rate limit etc.)
-    try {
 
-      // let runpod_run_input_data = {
-      //   'input': {
-      //     'prompt': values.text,
-      //     'model': values.model,
-      //     'seed': values.seed,
-      //     'height': values.height,
-      //     'width': values.width,
-      //     'guidance_scale': values.guidance_scale,
-      //     'num_inference_steps': values.num_inference_steps
-      //   }
-      // }
+    // we create a "placeholder" image object in redux store so that we can show a loading spinner as long as img_src is null
+    let img_placeholder = {id: nanoid(), prompt: values.text, img_src: null}
+    store.dispatch(imagesSlice.actions.addImage(img_placeholder))
+
+    try {
       let run_data = {
         'prompt': values.text,
         'model': values.model,
@@ -125,11 +140,11 @@ const Prompt = ({ className, ...rest }) => {
         'num_inference_steps': values.num_inference_steps
       }
 
-      const runpod_run_id = await runpod_initiate_run(run_data);
+      // const runpod_run_id = nanoid()  // debugging: mock run id so that it doesn't initiate a run on the backend
+      const runpod_run_id = await runpod_initiate_run(run_data); // uncomment this to initiate a run on the backend
 
-      if (runpod_run_id) {
-        let [final_run_status, final_base64ImageString] = await poll_runpod_status(runpod_run_id, values);
-      }
+      // the change in run state will trigger the useEffect hook which will poll the runpod status endpoint
+      setRun({run_id: runpod_run_id, img_placeholder_id: img_placeholder.id})
 
       if (isMountedRef.current) {
         setStatus({ success: true });

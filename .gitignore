@@ -103,4 +103,4 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 # ---- end of jetbrains.gitignore content ----
 
-prompts.js
+src/prompts.js

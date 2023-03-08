@@ -10,21 +10,19 @@ export const imagesSlice = createSlice({
       reducer(state, action) {
         state.list.push(action.payload)
       },
-      // add an id to every item that is added to the store
-      prepare(item) {
-        return {
-          payload: {
-            id: nanoid(),
-            ...item
-          }
-        }
-      }
     },
+    updateImage(state, action) {
+      const {id, img_src} = action.payload
+      const existingImage = state.list.find(image => image.id === id)
+      if (existingImage) {
+        existingImage.img_src = img_src
+      }
+    }
   },
 });
 
 export const imagesSelector = state => state.images.list
 
-export const {addImage} = imagesSlice.actions
+export const {addImage, updateImage} = imagesSlice.actions
 
 export default imagesSlice.reducer
