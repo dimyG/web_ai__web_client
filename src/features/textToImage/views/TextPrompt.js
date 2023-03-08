@@ -120,13 +120,13 @@ const Prompt = ({ className, ...rest }) => {
       store.dispatch(imagesSlice.actions.updateImage(upd_img_src))
   }
 
-  const on_submit = async (values, { setErrors, setStatus, setSubmitting }) => {
+  const on_submit = async (values, { setErrors, setStatus, setSubmitting, setFieldValue }) => {
     // We send a post request to our pre inference service which initiates a run on runpod and returns the run id.
     // Then we poll the runpod status endpoint from the web client until the run is completed.
     // The run is initiated from the back end to pre-process the request (rate limit etc.)
 
     // we create a "placeholder" image object in redux store so that we can show a loading spinner as long as img_src is null
-    let img_placeholder = {id: nanoid(), prompt: values.text, img_src: null}
+    let img_placeholder = {id: nanoid(), settings: values, img_src: null}
     store.dispatch(imagesSlice.actions.addImage(img_placeholder))
 
     try {
@@ -145,6 +145,10 @@ const Prompt = ({ className, ...rest }) => {
 
       // the change in run state will trigger the useEffect hook which will poll the runpod status endpoint
       setRun({run_id: runpod_run_id, img_placeholder_id: img_placeholder.id})
+
+      // modify the value of the seed field after the form is submitted so that the next submission will have a different seed
+      const newSeed = Math.floor(Math.random() * 10000); // generate a new random seed
+      setFieldValue('seed', newSeed);
 
       if (isMountedRef.current) {
         setStatus({ success: true });
