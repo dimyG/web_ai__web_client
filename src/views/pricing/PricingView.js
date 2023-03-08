@@ -193,7 +193,7 @@ const PricingView = () => {
                   variant="body2"
                   // color="textPrimary"
                 >
-                  Create 10 images/day
+                  Create 30 images/day
                   <br />
                   Use images commercially
                   <br />
@@ -282,7 +282,7 @@ const PricingView = () => {
                   disabled={premiumUser}
                   onClick={() => handleCheckout(15)}
                 >
-                  (fake) Checkout
+                  { premiumUser? 'Active' : '(fake) Checkout'}
                 </Button>
               </Paper>
             </Grid>
