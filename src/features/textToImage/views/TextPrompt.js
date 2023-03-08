@@ -14,25 +14,21 @@ import {
   Card,
   CardContent,
   CardHeader,
-  IconButton, Accordion, AccordionSummary, AccordionDetails, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Select, MenuItem,
+  IconButton, Accordion, AccordionSummary, AccordionDetails
 } from '@material-ui/core';
 import useIsMountedRef from 'src/hooks/useIsMountedRef';
 // import axios from "axios";
 import {AxiosInstance2 as axios} from 'src/utils/axios';
 import urls from 'src/urls';
-import store from "../../../store";
+import store from "src/store";
 import {messagesSlice} from 'src/features/Messages/messagesSlice';
 import {imagesSlice} from "../imagesSlice";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {model_options} from "../text2img_models";
+import {RunpodClient} from "src/utils/runpod";
 
 const ai_tools_urls = urls.ai_tools;
-const text_to_image_url = ai_tools_urls.text_to_img;
-const runpod_run_url = ai_tools_urls.runpod_run;
-const runpod_status_url = ai_tools_urls.runpod_status;
-const runpod_api_key = process.env.REACT_APP_RUNPOD_API_KEY;
-
-// text_to_image_url = 'http://127.0.0.1:8002/' + 'generate_image/'
+const initiate_run_url = ai_tools_urls.initiate_run;
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -56,151 +52,17 @@ const useStyles = makeStyles((theme) => ({
   // },
 }));
 
-const txt2img_internal = async (url, values) => {
-  return await axios.post(url, null, {
-    params: {prompt: values.text},
-    responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
-  });
-}
-
-const pre_inference_api = async (data, url = text_to_image_url) => {
-  // let post_data = data['input']
-  return await axios.post(url, null, {
-    params: data,
-    responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
-  });
-}
-
-async function runpodStatusOutput(id, num_errors=0, status_url=runpod_status_url, runpod_key=runpod_api_key, delay=1500) {
-  // in progress run_response:
-  // {
-  //     "delayTime": 2624,
-  //     "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
-  //     "input": {
-  //         "prompt": "a cute magical flying dog, fantasy art drawn by disney concept artists"
-  //     },
-  //     "status": "IN_PROGRESS"
-  // }
-  // completed run_response:
-  // {
-  //   "delayTime": 123456, // (milliseconds) time in queue
-  //   "executionTime": 1234, // (milliseconds) time it took to complete the job
-  //   "gpu": "24", // gpu type used to run the job
-  //   "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
-  //   "input": {
-  //     "prompt": "a cute magical flying dog, fantasy art drawn by disney concept artists"
-  //   },
-  //   "output": [
-  //     {
-  //       "image": "https://job.results1",
-  //       "seed": 1
-  //     },
-  //     {
-  //       "image": "https://job.results2",
-  //       "seed": 2
-  //     }
-  //   ],
-  //   "status": "COMPLETED"
-  // }
-  const num_retries_on_500 = 2;
-  try {
-    while (true) {
-
-      const status_response = await axios.get(status_url + id, {
-        responseType: "json",
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${runpod_key}`
-        }
-      });
-
-      let http_status = status_response.status;
-      console.log(`http status: ${http_status}, status_url response: ${status_response}`);
-
-      let response_500_num = 0;
-
-      if (http_status === 500 && response_500_num < 3) {
-        console.log(`http_status: ${http_status}, response_500_num: ${response_500_num}, error response: ${status_response}`)
-        response_500_num += 1;
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-
-      else if (http_status === 200) {
-        console.log(`http_status: ${http_status}, response: ${status_response}`)
-        const status = status_response.data.status;
-        if (status === "IN_PROGRESS") {
-          console.log("IN_PROGRESS");
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else if (status === "IN_QUEUE") {
-          console.log("IN_QUEUE");
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else if (status === "COMPLETED") {
-          console.log("COMPLETED");
-          return status_response.data.output;
-        } else if (status === "FAILED") {
-          console.log("FAILED");
-          return null;
-        } else {
-          console.log(`http_status: ${http_status}, unexpected response: ${status_response}`);
-          return null;
-        }
-
-      } else {
-        console.log(`unexpected http status: ${http_status}, unexpected response: ${status_response}`);
-        return null;
-      }
-
-    }
-  }
-  catch (e) {
-    console.error(`Unexcpected error: ${e}`);
-    // in some cases runpod status returns 500 error, but the job is actually completed. So we retry a few times
-    if (num_errors < num_retries_on_500) {
-      num_errors += 1;
-      return await runpodStatusOutput(id, num_errors);
-    } else {
-      console.error(`Too many errors: ${num_errors}`);
-      return null;
-    }
-  }
-}
-
-const txt2img_runpod = async (
-  input_data,
-  run_url = runpod_run_url,
-  runpod_key = runpod_api_key
-) => {
-
-  const run_response = await axios.post(run_url, input_data, {
-    responseType: "json",
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${runpod_key}`
-    }
-  });
-  // run_response:
-  // {
-  //     "id": "c80ffee4-f315-4e25-a146-0f3d98cf024b",
-  //     "status": "IN_QUEUE"
-  // }
-
-  console.log("run_url response:", run_response);
-  const run_id = run_response.data.id;
-  // const run_status = run_response.data.status;
-  const output = await runpodStatusOutput(run_id);
-  console.log("status_url response:", output);
-
-  return output;
-}
-
 const Prompt = ({ className, ...rest }) => {
   const classes = useStyles();
   const isMountedRef = useIsMountedRef();
 
   const [expanded, setExpanded] = React.useState(false);
+
   const handlePanelChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
+
+  const runpod_client = new RunpodClient();
 
   const img_size_options = [
     {value: 256, label: '256'},
@@ -208,6 +70,96 @@ const Prompt = ({ className, ...rest }) => {
     {value: 768, label: '768'},
     {value: 1024, label: '1024'},
   ]
+
+  const poll_runpod_status = async (runpod_run_id, values) => {
+    const delay = 2000;
+    let run_status = null;
+    let base64ImageString = null;
+    while (run_status === null || run_status === 'IN_QUEUE' || run_status === 'IN_PROGRESS') {
+      let res = await runpod_client.runpod_get_status(runpod_run_id);
+      run_status = res[0];
+      base64ImageString = res[1];
+
+      if (run_status === 'COMPLETED') {
+        // From the base64 string, create a "data URL" that can be used as the src attribute of an image.
+        // A data URL is a URL scheme that allows for the inclusion of small data items as "immediate" data,
+        // as if they were being referenced externally. The format of a data URL is data:[<media type>][;base64],<data>
+        // data URLs have a limited size (2-3 MB)
+        let img_src = "data:image/png;base64," + base64ImageString
+        let img_store_obj = {prompt: values.text, img_src: img_src}
+        store.dispatch(imagesSlice.actions.addImage(img_store_obj))
+        // store.dispatch(messagesSlice.actions.addMessage({text: response.data.prompt, mode: "success", seen: false}))
+        break
+      }
+
+      await new Promise(resolve => setTimeout(resolve, delay));
+
+    }
+    return [run_status, base64ImageString];
+  }
+
+  const on_submit = async (values, { setErrors, setStatus, setSubmitting }) => {
+    // We send a post request to our pre inference service which initiates a run on runpod and returns the run id.
+    // Then we poll the runpod status endpoint from the web client until the run is completed.
+    // The run is initiated from the back end to pre-process the request (rate limit etc.)
+    try {
+
+      // let runpod_run_input_data = {
+      //   'input': {
+      //     'prompt': values.text,
+      //     'model': values.model,
+      //     'seed': values.seed,
+      //     'height': values.height,
+      //     'width': values.width,
+      //     'guidance_scale': values.guidance_scale,
+      //     'num_inference_steps': values.num_inference_steps
+      //   }
+      // }
+      let run_data = {
+        'prompt': values.text,
+        'model': values.model,
+        'seed': values.seed,
+        'height': values.height,
+        'width': values.width,
+        'guidance_scale': values.guidance_scale,
+        'num_inference_steps': values.num_inference_steps
+      }
+
+      const runpod_run_id = await runpod_initiate_run(run_data);
+
+      if (runpod_run_id) {
+        let [final_run_status, final_base64ImageString] = await poll_runpod_status(runpod_run_id, values);
+      }
+
+      if (isMountedRef.current) {
+        setStatus({ success: true });
+        setSubmitting(false);
+      }
+    } catch (err) {
+      console.error(err);
+      if (isMountedRef.current) {
+        setStatus({ success: false });
+        setErrors({ submit: err.message });
+        setSubmitting(false);
+      }
+    }
+  }
+
+  async function runpod_initiate_run(input_data, run_url = initiate_run_url) {
+    const config = {
+      params: input_data,
+      responseType: "json"
+    }
+    try{
+      const run_response = await axios.post(run_url, null, config);
+      console.debug("runpod run id:", run_response.data.run_id);
+      return run_response.data.run_id;
+    } catch (e) {
+      console.error(`Error: ${e}`);
+      store.dispatch(messagesSlice.actions.addMessage({text: e.error, mode: "error", seen: false}))
+    }
+
+  }
 
   return (
     <Formik
@@ -229,66 +181,7 @@ const Prompt = ({ className, ...rest }) => {
         guidance_scale: Yup.number().min(0).required('Guidance scale is required'),
         num_inference_steps: Yup.number().integer().min(1).max(200).required('Number of inference steps is required'),
       })}
-      onSubmit={async (values, {
-        setErrors,
-        setStatus,
-        setSubmitting
-      }) => {
-
-        try {
-          // const response = await axios.post(text_to_image_url, null, {
-          //   params: {prompt: values.text},
-          //   responseType: "arraybuffer",  // Axios will parse the response as an ArrayBuffer, a low-level representation of binary data in JavaScript
-          // });
-
-          let runpod_run_input_data = {
-            'input': {
-              'prompt': values.text,
-              'model': values.model,
-              'seed': values.seed,
-              'height': values.height,
-              'width': values.width,
-              'guidance_scale': values.guidance_scale,
-              'num_inference_steps': values.num_inference_steps
-            }
-          }
-
-          // console.log("runpod_run_input_data:", runpod_run_input_data)
-
-          const arraybufferResponse = await pre_inference_api(runpod_run_input_data['input']);
-          // const base64ImageString = await txt2img_runpod(runpod_run_input_data);
-
-          // const base64ImageString = await runpodStatusOutput('47052042-822a-4644-ad4a-e303a4a74383');  //8966803d-bf3f-438b-994d-5689bfc3e591 88344ebb-2a58-41f1-b551-77201a689d6e 47052042-822a-4644-ad4a-e303a4a74383
-          // const base64ImageString = 'debug'
-
-          // const arraybufferResponse = await txt2img_runpod(runpod_run_input_data);  // responseType should be arraybuffer
-          // convert the ArrayBuffer to a base64 encoded string
-
-          let base64ImageString = Buffer.from(arraybufferResponse.data, 'binary').toString('base64')
-
-          // From the base64 string, create a "data URL" that can be used as the src attribute of an image.
-          // A data URL is a URL scheme that allows for the inclusion of small data items as "immediate" data,
-          // as if they were being referenced externally. The format of a data URL is data:[<media type>][;base64],<data>
-          // data URLs have a limited size (2-3 MB)
-          let img_src = "data:image/png;base64,"+base64ImageString
-
-          let img_store_obj = {prompt: values.text, img_src: img_src}
-          store.dispatch(imagesSlice.actions.addImage(img_store_obj))
-          // store.dispatch(messagesSlice.actions.addMessage({text: response.data.prompt, mode: "success", seen: false}))
-
-          if (isMountedRef.current) {
-            setStatus({ success: true });
-            setSubmitting(false);
-          }
-        } catch (err) {
-          console.error(err);
-          if (isMountedRef.current) {
-            setStatus({ success: false });
-            setErrors({ submit: err.message });
-            setSubmitting(false);
-          }
-        }
-      }}
+      onSubmit={on_submit}
     >
       {({
         errors,

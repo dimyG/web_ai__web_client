@@ -19,7 +19,7 @@ axiosInstance.interceptors.response.use(
 
 // This is a custom axios instance (not mocked).
 const AxiosInstance2 = axios.create({
-  baseURL: 'http://192.168.99.101:8001',
+  baseURL: 'https://jinifai',
   // headers: {
   //   Authorization: localStorage.getItem('accessToken')
   //     ? 'Bearer ' + localStorage.getItem('accessToken')
@@ -29,7 +29,7 @@ const AxiosInstance2 = axios.create({
 });
 
 AxiosInstance2.interceptors.request.use((async (config) => {
-  console.info('Request:', config);
+  // console.debug('Request:', config);
   const url = config.url;  // the url of the current request
   // avoid refreshing the token if the current request is a refresh request, to avoid infinite loop
   const urlsToIgnore = [refresh_url, login_url];
@@ -51,11 +51,11 @@ AxiosInstance2.interceptors.request.use((async (config) => {
 
 AxiosInstance2.interceptors.response.use(
   (response) => {
-    console.info('Response:', response);
+    // console.debug('Response:', response);
     return response;
   },
   (error) => {
-    console.error('Error:', error);
+    // console.error('Error:', error);
     return Promise.reject((error.response && error.response.data) || 'Something went wrong')}
 );
 

@@ -15,7 +15,8 @@ const urls = {
     user: auth_server + 'api/auth/users/',
   },
   ai_tools: {
-    text_to_img: text_to_img_server + 'generate_image/',
+    // text_to_img: text_to_img_server + 'generate_image/',
+    initiate_run: text_to_img_server + 'initiate_run/',
     runpod_run: 'https://api.runpod.ai/v1/v9zir5v2o6ezbl/run',
     runpod_status: 'https://api.runpod.ai/v1/v9zir5v2o6ezbl/status/',
   },
