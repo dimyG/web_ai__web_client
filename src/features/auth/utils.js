@@ -22,12 +22,13 @@ const setSession = (accessToken, refreshToken) => {
 };
 
 const refreshSession = async () => {
+  // todo: Rethink the whole refresh session logic
   // const { logout } = useAuth();  // this is not allowed in a function it must be in a component or a custom hook
   const refreshToken = localStorage.getItem('refreshToken');
 
   if (!refreshToken) {
     // No refresh token, log out user
-    // todo logout();
+    // todo: logout() here or in the caller?
     return null;
   }
 
@@ -35,14 +36,26 @@ const refreshSession = async () => {
     const postData = {refresh: refreshToken}
     const { data } = await axios.post(refresh_url, postData);
     // response data = { access: "", access_token_expiration: ""}
-    const newAccessToken = data.access;
-    setSession(newAccessToken, refreshToken);
-    return newAccessToken;
+
+    try{
+      // the refresh token is valid
+      const newAccessToken = data.access;
+      setSession(newAccessToken, refreshToken);
+      return newAccessToken;
+    }
+
+    catch (error) {
+      // the refresh token is not valid
+      // logout() here or in the caller?
+      return null;
+    }
+
     // logout();
   } catch (error) {
     // Error refreshing token, log out user or handle error
     console.error(error);
-    // todo logout()
+    // logout() here or in the caller?
+    return null;
   }
 }
 

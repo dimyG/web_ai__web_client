@@ -11,7 +11,7 @@ import {useDispatch} from "react-redux";
 import {addMessage} from "../features/algorithms/algorithmsSlice";
 import {readCsrfFromCookie} from "../features/csrf/csrfSlice";
 import urls from "src/urls";
-import {setSession} from "src/features/auth/utils";
+import {refreshSession, setSession} from "src/features/auth/utils";
 import {TIERS} from "src/constants";
 
 // const initialUser = {
@@ -46,7 +46,7 @@ const isValidToken = (accessToken) => {
   }
 
   const decoded = jwtDecode(accessToken);
-  const currentTime = Date.now() / 1000;
+  const currentTime = Date.now() / 1000;  // Get the current Unix timestamp in seconds
 
   return decoded.exp > currentTime;
 };
@@ -113,6 +113,7 @@ export const AuthProvider = ({ children }) => {
       const refreshToken = response.data.refresh_token
       const userData = response.data.user
       const jwt_claim = jwtDecode(accessToken)
+      // console.debug(`access token expires in ${jwt_claim.exp - Date.now() / 1000} seconds`);
       // the userData response does not contain the tier yet, so we get it from the jwt claim todo: make it consistent
       let tier = jwt_claim.tier
       // Important: if you read the email from the jwt claim, use a variable name different from "email" because
@@ -180,12 +181,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initialise = async () => {
+      // console.debug("initialising auth context...")
       try {
         const accessToken = window.localStorage.getItem('accessToken');
         const refreshToken = window.localStorage.getItem('refreshToken');
 
         if (accessToken && isValidToken(accessToken)) {
           console.debug("accessToken is valid")
+
           // on reload page get the user so to be logged in if he has a valid jwt accessToken
           setSession(accessToken, refreshToken);
 
@@ -204,14 +207,45 @@ export const AuthProvider = ({ children }) => {
               user
             }
           });
-        } else {
-          dispatch({
-            type: 'INITIALISE',
-            payload: {
-              isAuthenticated: false,
-              user: anonymousUser
-            }
-          });
+        }
+
+        else {
+          // if the accessToken is not valid, refresh it
+          // console.debug("accessToken is not valid")
+
+          const newAccessToken = await refreshSession()
+
+          if (!newAccessToken){
+            // if the refresh token is not valid we initialize with an anonymous user
+            console.debug("refresh token is not valid")
+            setSession(null, null)
+            dispatch({
+              type: 'INITIALISE',
+              payload: {
+                isAuthenticated: false,
+                user: anonymousUser
+              }
+            });
+          }
+
+          else {
+            // if the refresh token is valid we initialize with the new access token
+            // console.debug("refresh token is valid")
+
+            // setSession(newAccessToken, refreshToken);  // call to refreshSession already sets the session
+            const jwt_claim = jwtDecode(newAccessToken)
+            const [id, username, email, tier] = [jwt_claim.user_id, jwt_claim.username, jwt_claim.email, jwt_claim.tier]
+            const user = createUser(id, username, email, tier)
+
+            dispatch({
+              type: 'INITIALISE',
+              payload: {
+                isAuthenticated: true,
+                user: user
+              }
+            });
+          }
+
         }
       } catch (err) {
         console.error(err);

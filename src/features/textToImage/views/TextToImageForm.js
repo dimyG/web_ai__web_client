@@ -274,7 +274,7 @@ const GenerateImageForm = ({ className, ...rest }) => {
                 <Typography className={classes.heading}>Settings</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <Grid container direction="row" justify="space-between" alignItems="center" collapse>
+                <Grid container direction="row" justify="space-between" alignItems="center" >
                   <Grid item className={classes.settings} xs={12} md={4} lg={4} >
                     <Typography variant="h3">
                     <TextField
