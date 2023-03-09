@@ -125,10 +125,6 @@ const Prompt = ({ className, ...rest }) => {
     // Then we poll the runpod status endpoint from the web client until the run is completed.
     // The run is initiated from the back end to pre-process the request (rate limit etc.)
 
-    // we create a "placeholder" image object in redux store so that we can show a loading spinner as long as img_src is null
-    let img_placeholder = {id: nanoid(), settings: values, img_src: null}
-    store.dispatch(imagesSlice.actions.addImage(img_placeholder))
-
     try {
       let run_data = {
         'prompt': values.text,
@@ -143,8 +139,17 @@ const Prompt = ({ className, ...rest }) => {
       // const runpod_run_id = nanoid()  // debugging: mock run id so that it doesn't initiate a run on the backend
       const runpod_run_id = await runpod_initiate_run(run_data); // uncomment this to initiate a run on the backend
 
-      // the change in run state will trigger the useEffect hook which will poll the runpod status endpoint
-      setRun({run_id: runpod_run_id, img_placeholder_id: img_placeholder.id})
+      if (runpod_run_id) {
+        // if the run was initiated successfully, add a placeholder image to the redux store and set the run state
+
+        // we create a "placeholder" image object in redux store so that we can show a loading spinner as long as img_src is null
+        let img_placeholder = {id: nanoid(), settings: values, img_src: null}
+        store.dispatch(imagesSlice.actions.addImage(img_placeholder))
+
+        // The change in run state will trigger the useEffect hook which will poll the runpod status endpoint
+        // This way the onsubmit function can return and the UI will not be blocked
+        setRun({run_id: runpod_run_id, img_placeholder_id: img_placeholder.id})
+      }
 
       // modify the value of the seed field after the form is submitted so that the next submission will have a different seed
       const newSeed = Math.floor(Math.random() * 10000); // generate a new random seed
