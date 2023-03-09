@@ -31,6 +31,16 @@ import {nanoid} from "@reduxjs/toolkit";
 
 const ai_tools_urls = urls.ai_tools;
 const initiate_run_url = ai_tools_urls.initiate_run;
+let initialValues = {
+    text: 'a pinochio steampunk robot, bar lighting serving coffee and chips, highly detailed, digital painting, artstation, concept art, sharp focus, cinematic lighting, illustration, artgerm, greg rutkowski, alphonse mucha, cgsociety, octane render, unreal engine 5',
+    model: model_options[0].value,
+    seed: 1024,
+    height: 768,
+    width: 512,
+    guidance_scale: 7.5,
+    num_inference_steps: 50,
+    submit: null
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -54,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
   // },
 }));
 
-const Prompt = ({ className, ...rest }) => {
+const GenerateImageForm = ({ className, ...rest }) => {
   const classes = useStyles();
   const isMountedRef = useIsMountedRef();
 
@@ -155,6 +165,10 @@ const Prompt = ({ className, ...rest }) => {
       const newSeed = Math.floor(Math.random() * 10000); // generate a new random seed
       setFieldValue('seed', newSeed);
 
+      // update the initialValues object so that if the user revisit the page the previously used values will be pre-populated
+      // notice that this is not components state, but a variable defined outside the component. It didn't work as a component state.
+      initialValues = {...values, seed: newSeed};
+
       if (isMountedRef.current) {
         setStatus({ success: true });
         setSubmitting(false);
@@ -179,7 +193,7 @@ const Prompt = ({ className, ...rest }) => {
       console.debug("runpod run id:", run_response.data.run_id);
       return run_response.data.run_id;
     } catch (e) {
-      console.error(`Error: ${e}`);
+      // console.error(`Error: ${e}`);
       store.dispatch(messagesSlice.actions.addMessage({text: e.error, mode: "error", seen: false}))
     }
 
@@ -187,16 +201,8 @@ const Prompt = ({ className, ...rest }) => {
 
   return (
     <Formik
-      initialValues={{
-        text: 'a pinochio steampunk robot, bar lighting serving coffee and chips, highly detailed, digital painting, artstation, concept art, sharp focus, cinematic lighting, illustration, artgerm, greg rutkowski, alphonse mucha, cgsociety, octane render, unreal engine 5',
-        model: model_options[0].value,
-        seed: 1024,
-        height: img_size_options[2].value,
-        width: img_size_options[1].value,
-        guidance_scale: 7.5,
-        num_inference_steps: 50,
-        submit: null
-      }}
+      // enableReinitialize={true}
+      initialValues={initialValues}
       validationSchema={Yup.object().shape({
         text: Yup.string().max(3500).required('Give me an image description!'),
         seed: Yup.number().integer().required('Seed is required'),
@@ -406,8 +412,8 @@ const Prompt = ({ className, ...rest }) => {
   );
 };
 
-Prompt.propTypes = {
+GenerateImageForm.propTypes = {
   className: PropTypes.string,
 };
 
-export default Prompt;
+export default GenerateImageForm;

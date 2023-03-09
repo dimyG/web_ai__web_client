@@ -14,7 +14,7 @@ import {
 import React from "react";
 // import {Link as RouterLink} from "react-router-dom";
 // import Logo from "src/components/Logo";
-import TextPrompt from "./TextPrompt";
+import TextToImageForm from "./TextToImageForm";
 import ImageGrid from "./ImageGrid";
 import {useSelector} from "react-redux";
 import {imagesSelector} from "../imagesSlice";
@@ -38,7 +38,7 @@ const TextToImagePage = () => {
       title="Web AI"
     >
       <Container maxWidth={false}>
-        <TextPrompt />
+        <TextToImageForm />
         {images.length === 0 ? null : (
           <ImageGrid />
         )}
