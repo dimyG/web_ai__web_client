@@ -34,7 +34,7 @@ const initiate_run_url = ai_tools_urls.initiate_run;
 let initialValues = {
     text: 'a pinochio steampunk robot, bar lighting serving coffee and chips, highly detailed, digital painting, artstation, concept art, sharp focus, cinematic lighting, illustration, artgerm, greg rutkowski, alphonse mucha, cgsociety, octane render, unreal engine 5',
     model: model_options[0].value,
-    seed: 1024,
+    seed: Math.floor(Math.random() * 10000),
     height: 768,
     width: 512,
     guidance_scale: 7.5,
@@ -260,7 +260,7 @@ const GenerateImageForm = ({ className, ...rest }) => {
                   type="submit"
                   variant="contained"
                 >
-                  <Typography variant={"h3"}>Generate images</Typography>
+                  <Typography variant={"h3"}>Generate image</Typography>
                 </Button>
               </Box>
                 </Grid>

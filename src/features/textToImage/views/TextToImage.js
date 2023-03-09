@@ -35,7 +35,7 @@ const TextToImagePage = () => {
   return (
     <Page
       className={classes.root}
-      title="Web AI"
+      title="Jinifai"
     >
       <Container maxWidth={false}>
         <TextToImageForm />

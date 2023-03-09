@@ -21,9 +21,9 @@ import { AuthProvider } from 'src/contexts/JWTAuthContext';
 import useSettings from 'src/hooks/useSettings';
 import { createTheme } from 'src/theme';
 import routes, { renderRoutes } from 'src/routesCustom';
-import {Csrf} from "./features/csrf/csrf";
+// import {Csrf} from "./features/csrf/csrf";
 import Messages from "./features/Messages/Messages";
-import GetAlgorithms from "./features/algorithms/GetAlgorithms";
+// import GetAlgorithms from "./features/algorithms/GetAlgorithms";
 
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 const history = createBrowserHistory();

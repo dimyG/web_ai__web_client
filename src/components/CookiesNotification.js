@@ -14,7 +14,7 @@ import {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.background.secondary,
+    backgroundColor: theme.palette.background.fifth,  // rgb(138 133 255 / 25%)  // rgb(57 73 171 / 60%);
     color: theme.palette.common.white,
     maxWidth: 700,
     position: 'fixed',
@@ -53,12 +53,10 @@ const CookiesNotification = () => {
   }
 
   return (
+    <div style={{ position: 'relative', display: 'block' }}>
     <Portal>
-      <div className={classes.root}>
-        <Typography
-          variant="body1"
-          color="inherit"
-        >
+      <div className={classes.root} style={{ position: 'absolute', left: 10, right: 10, bottom: 10, margin: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="body1" color="inherit">
           We use Cookies to ensure that we give you the best experience on our
           website.
           {/*Read our*/}
@@ -74,21 +72,14 @@ const CookiesNotification = () => {
           {/*</Link>*/}
           {/*.*/}
         </Typography>
-        <Box
-          mt={2}
-          display="flex"
-          justifyContent="flex-end"
-        >
-          <Button
-            onClick={handleClose}
-            variant="contained"
-            className={classes.action}
-          >
+        <Box mt={2} display="flex" justifyContent="center">
+          <Button onClick={handleClose} variant="contained" className={classes.action}>
             I Agree
           </Button>
         </Box>
       </div>
     </Portal>
+    </div>
   );
 };
 

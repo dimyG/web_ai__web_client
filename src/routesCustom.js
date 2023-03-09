@@ -12,10 +12,10 @@ import DashboardLayout from 'src/layouts/DashboardLayout';
 import LoadingScreen from 'src/components/LoadingScreen';
 import AuthGuard from 'src/components/AuthGuard';
 import GuestGuard from 'src/components/GuestGuard';
-import AlgorithmCreateUpdate from "./features/algorithms/AlgorithmCreateUpdate";
-import AlgorithmsListView from "./features/algorithms/AlgorithmsListView";
-import AnimationsRoute from "./features/animations/AnimationsRoute";
-import {minHeapId} from "./constants";
+// import AlgorithmCreateUpdate from "./features/algorithms/AlgorithmCreateUpdate";
+// import AlgorithmsListView from "./features/algorithms/AlgorithmsListView";
+// import AnimationsRoute from "./features/animations/AnimationsRoute";
+// import {minHeapId} from "./constants";
 import About from "./views/About";
 import TextToImage from "src/features/textToImage/views/TextToImage";
 

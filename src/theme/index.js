@@ -68,7 +68,8 @@ const themesOptions = [
         paper: colors.common.white,
         secondary: fade(colors.indigo[600], 0.9),
         third: colors.indigo[400],
-        fourth: colors.indigo[700]
+        fourth: colors.indigo[700],
+        fifth: 'rgba(57,73,171,0.6)',
       },
       primary: {
         main: colors.indigo[600]
@@ -109,7 +110,8 @@ const themesOptions = [
         paper: '#282C34',
         secondary: fade('#8a85ff', 0.9),
         third: colors.indigo[500],
-        fourth: colors.indigo[700]
+        fourth: colors.indigo[700],
+        fifth: 'rgba(138, 133, 255, 0.75)',
       },
       primary: {
         main: '#8a85ff'
@@ -150,7 +152,8 @@ const themesOptions = [
         paper: '#2a2d3d',
         secondary: fade('#a67dff', 0.9),
         third: colors.indigo[500],
-        fourth: colors.indigo[700]
+        fourth: colors.indigo[700],
+        fifth: 'rgba(138, 133, 255, 0.75)',
       },
       primary: {
         main: '#a67dff'

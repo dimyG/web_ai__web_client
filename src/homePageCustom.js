@@ -3,7 +3,7 @@ import Page from 'src/components/Page'
 
 const HomePageCustom = () => {
     return(
-        <Page title={"Algorithms Home Page"}>
+        <Page title={"Jinifai Home Page"}>
 
         </Page>
     )
