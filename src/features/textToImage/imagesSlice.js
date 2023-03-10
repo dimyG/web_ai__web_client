@@ -17,12 +17,16 @@ export const imagesSlice = createSlice({
       if (existingImage) {
         existingImage.img_src = img_src
       }
+    },
+    removeImage(state, action) {
+      const id = action.payload
+      state.list = state.list.filter(image => image.id !== id)
     }
   },
 });
 
 export const imagesSelector = state => state.images.list
 
-export const {addImage, updateImage} = imagesSlice.actions
+export const {addImage, updateImage, removeImage} = imagesSlice.actions
 
 export default imagesSlice.reducer

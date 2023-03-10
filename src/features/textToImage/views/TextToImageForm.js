@@ -104,6 +104,8 @@ const GenerateImageForm = ({ className, ...rest }) => {
       let res = await runpod_client.runpod_get_status(runpod_run_id);
       run_status = res[0];
       base64ImageString = res[1];
+      // await new Promise(resolve => setTimeout(resolve, 2000));
+      // run_status = "FAILED"  // mock for debugging
 
       if (run_status === 'COMPLETED') {
         // From the base64 string, create a "data URL" that can be used as the src attribute of an image.
@@ -114,6 +116,13 @@ const GenerateImageForm = ({ className, ...rest }) => {
         let upd_img_src = {id: img_placeholder_id, img_src: img_src}
         store.dispatch(imagesSlice.actions.updateImage(upd_img_src))
         // store.dispatch(messagesSlice.actions.addMessage({text: response.data.prompt, mode: "success", seen: false}))
+        break  // break so that the timeout which is executed at the end of the loop doesn't run
+      }
+
+      else if (run_status === 'FAILED') {
+        store.dispatch(imagesSlice.actions.removeImage(img_placeholder_id))
+        store.dispatch(messagesSlice.actions.addMessage(
+          {text: "Oops, something went wrong!", mode: "error", seen: false}))
         break
       }
 
