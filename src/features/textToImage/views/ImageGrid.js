@@ -1,19 +1,34 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Box, Card, CardContent, Grid, GridListTile, makeStyles} from '@material-ui/core';
 import {useSelector} from "react-redux";
 import {imagesSelector} from "../imagesSlice";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import clsx from "clsx";
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  clickedImage: {
+    // boxShadow: '0 0 8px rgba(0,0,0,0.4)', // add a box shadow
+    border: `2px solid ${theme.palette.primary.main}`, // add a border
+    transform: 'scale(1.02)', // scale up the image
+    filter: 'brightness(1.1) saturate(1.1)', // add a tint
+    boxShadow: 'inset 0 0 20px 10px rgba(159, 68, 255, 0.5)', // add a purple glow effect
+  },
+  hoveredImage: {
+    filter: 'brightness(1.1) saturate(1.1)', // add a tint
+  }
+}));
 
-const GeneratedImage = ({img_src, id}) => {
+const GeneratedImage = ({img_src, id, className, onClick, onHover}) => {
   return (
-    <div className="generated-images__image">
+    <div className={`generated-images__image`}>
       <img
         id={id}
         src={img_src}
         alt="Generated Image"
         style={{ maxWidth: '100%', height: 'auto' }}
+        onClick={onClick}
+        onMouseEnter={onHover}
+        className={className}
       />
     </div>
   );
@@ -23,8 +38,23 @@ const GeneratedImage = ({img_src, id}) => {
 const ImageGrid = () => {
   const classes = useStyles();
   let images = useSelector(state => imagesSelector(state))
+  const [clickedImageId, setClickedImageId] = useState(null);
+  const [hoveredImageId, setHoveredImageId] = useState(null);
 
   // useEffect(() => {}, [images])
+
+  const handleImageClick = (image) => {
+    if (clickedImageId === image.id) {
+      // if the image is already clicked, then unclick it
+      setClickedImageId(null)
+      return
+    }
+    setClickedImageId(image.id)
+  }
+
+  const handleImageHover = (image) => {
+    setHoveredImageId(image.id)
+  }
 
   const renderedImages = [];
 
@@ -34,7 +64,13 @@ const ImageGrid = () => {
     const renderedImage = (
       <Grid item xs={12} sm={6} md={4} lg={3} key={image.id}>
         {image.img_src
-          ? <GeneratedImage img_src={image.img_src} id={image.id} />
+          ? <GeneratedImage
+            img_src={image.img_src}
+            id={image.id}
+            className={clsx(clickedImageId === image.id ? classes.clickedImage : "", hoveredImageId === image.id ? classes.hoveredImage : "")}
+            onClick={() => handleImageClick(image)}
+            onHover={() => handleImageHover(image)}
+          />
           : <Grid container justify="center" alignItems="center" style={{ height: '100%' }}><CircularProgress /></Grid>
         }
       </Grid>
