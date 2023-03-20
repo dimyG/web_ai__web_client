@@ -66,21 +66,40 @@ const TextToImagePage = () => {
       const prompt_lushil = 'lushill style, incredibly detailed, 4k resolution, Stanley Lau Artgerm, WLOP, muccia and rockwell'
       const prompt_olp = 'olpntng style, line art, watercolor wash, portrait of a nordic elf paladin with braided blue hair, defender of Gridania, 4k resolution, carl larsson and brian froud and alphonse mucha style, perfect composition, detailed background, 60-30-10 color rule, oil painting, heavy strokes, paint dripping'
 
-      const image_model = {id: null, img_src: null, prompt: null, model: null, seed: null, width: 512, height: 768, guidance_scale: 7.5, num_inference_steps: 50}
+      const image_model = {
+        id: null,
+        img_src: null,
+        settings: {
+          prompt: null, model: null, seed: null, width: 512, height: 768, guidance_scale: 7.5, num_inference_steps: 50
+        }
+      }
+
+      const settings1 = { ...image_model.settings, prompt: prompt_01, model: 'CompVis/stable-diffusion-v1-4', seed: 816 }
+      const settings2 = { ...image_model.settings, prompt: prompt_01, model: 'stabilityai/stable-diffusion-2-1', seed: 9201 }
+      const settings3 = { ...image_model.settings, prompt: prompt_03, model: 'stabilityai/stable-diffusion-2-1', seed: 6767 }
+      const settings4 = { ...image_model.settings, prompt: prompt_03, model: 'CompVis/stable-diffusion-v1-4', seed: 1703 }
+      const settings5 = { ...image_model.settings, prompt: prompt_02, model: 'stabilityai/stable-diffusion-2-1', seed: 7028 }
+      const settings6 = { ...image_model.settings, prompt: prompt_02, model: 'CompVis/stable-diffusion-v1-4', seed: 473 }
+      const settings7 = { ...image_model.settings, prompt: prompt_merlin, model: 'stabilityai/stable-diffusion-2-1', seed: 4795 }
+      const settings8 = { ...image_model.settings, prompt: prompt_merlin, model: 'stabilityai/stable-diffusion-2-1', seed: 4943 }
+      const settings9 = { ...image_model.settings, prompt: prompt_strybk, model: 'stabilityai/stable-diffusion-2-1', seed: 7578 }
+      const settings10 = { ...image_model.settings, prompt: prompt_strybk, model: 'stabilityai/stable-diffusion-2-1', seed: 5435 }
+      const settings11 = { ...image_model.settings, prompt: prompt_lushil, model: 'stabilityai/stable-diffusion-2-1', seed: 7022 }
+      const settings12 = { ...image_model.settings, prompt: prompt_olp, model: 'stabilityai/stable-diffusion-2-1', seed: 2344 }
 
       const initialImages = [
-        {...image_model, id: 2, img_src: '/static/showcase_images/jini02.png', prompt: prompt_01, model: 'CompVis/stable-diffusion-v1-4', seed: 816},
-        {...image_model, id: 1, img_src: '/static/showcase_images/jini01.png', prompt: prompt_01, model: 'stabilityai/stable-diffusion-2-1', seed: 9201},
-        {...image_model, id: 6, img_src: '/static/showcase_images/jini06.png', prompt: prompt_03, model: 'stabilityai/stable-diffusion-2-1', seed: 6767},
-        {...image_model, id: 5, img_src: '/static/showcase_images/jini05.png', prompt: prompt_03, model: 'CompVis/stable-diffusion-v1-4', seed: 1703},
-        {...image_model, id: 3, img_src: '/static/showcase_images/jini03.png', prompt: prompt_02, model: 'stabilityai/stable-diffusion-2-1', seed: 7028},
-        {...image_model, id: 4, img_src: '/static/showcase_images/jini04b.png', prompt: prompt_02, model: 'CompVis/stable-diffusion-v1-4', seed: 473},
-        {...image_model, id: 7, img_src: '/static/showcase_images/jini07.png', prompt: prompt_merlin, model: 'stabilityai/stable-diffusion-2-1', seed: 4795},
-        {...image_model, id: 15, img_src: '/static/showcase_images/jini15.png', prompt: prompt_merlin, model: 'stabilityai/stable-diffusion-2-1', seed: 4943},
-        {...image_model, id: 8, img_src: '/static/showcase_images/jini08.png', prompt: prompt_strybk, model: 'stabilityai/stable-diffusion-2-1', seed: 7578},
-        {...image_model, id: 9, img_src: '/static/showcase_images/jini09.png', prompt: prompt_strybk, model: 'stabilityai/stable-diffusion-2-1', seed: 5435},
-        {...image_model, id: 10, img_src: '/static/showcase_images/jini10.png', prompt: prompt_lushil, model: 'stabilityai/stable-diffusion-2-1', seed: 7022},
-        {...image_model, id: 11, img_src: '/static/showcase_images/jini11.png', prompt: prompt_olp, model: 'stabilityai/stable-diffusion-2-1', seed: 2344},
+        {...image_model, id: 2, img_src: '/static/showcase_images/jini02.png', settings: settings1},
+        {...image_model, id: 1, img_src: '/static/showcase_images/jini01.png', settings: settings2},
+        {...image_model, id: 6, img_src: '/static/showcase_images/jini06.png', settings: settings3},
+        {...image_model, id: 5, img_src: '/static/showcase_images/jini05.png', settings: settings4},
+        {...image_model, id: 3, img_src: '/static/showcase_images/jini03.png', settings: settings5},
+        {...image_model, id: 4, img_src: '/static/showcase_images/jini04b.png', settings: settings6},
+        {...image_model, id: 7, img_src: '/static/showcase_images/jini07.png', settings: settings7},
+        {...image_model, id: 15, img_src: '/static/showcase_images/jini15.png', settings: settings8},
+        {...image_model, id: 8, img_src: '/static/showcase_images/jini08.png', settings: settings9},
+        {...image_model, id: 9, img_src: '/static/showcase_images/jini09.png', settings: settings10},
+        {...image_model, id: 10, img_src: '/static/showcase_images/jini10.png', settings: settings11},
+        {...image_model, id: 11, img_src: '/static/showcase_images/jini11.png', settings: settings12},
         // {...image_model, id: 12, img_src: '/static/showcase_images/jini12.png', prompt: prompt_olp, model: 'stabilityai/stable-diffusion-2-1', seed: 5779},
       ]
 

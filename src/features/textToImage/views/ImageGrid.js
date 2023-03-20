@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Box, Card, CardContent, Grid, GridListTile, makeStyles} from '@material-ui/core';
-import {useSelector} from "react-redux";
-import {imagesSelector} from "../imagesSlice";
+import {useSelector, useDispatch} from "react-redux";
+import {imagesSelector, imagesSlice} from "../imagesSlice";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import clsx from "clsx";
 
@@ -37,6 +37,7 @@ const GeneratedImage = ({img_src, id, className, onClick, onHover}) => {
 
 const ImageGrid = () => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   let images = useSelector(state => imagesSelector(state))
   const [clickedImageId, setClickedImageId] = useState(null);
   const [hoveredImageId, setHoveredImageId] = useState(null);
@@ -50,6 +51,8 @@ const ImageGrid = () => {
       return
     }
     setClickedImageId(image.id)
+    dispatch(imagesSlice.actions.updateText2ImgSettings({prompt: image.settings.prompt, seed: image.settings.seed, model: image.settings.model,
+      width: image.settings.width, height: image.settings.height, guidance_scale: image.settings.guidance_scale, num_inference_steps: image.settings.num_inference_steps}))
   }
 
   const handleImageHover = (image) => {

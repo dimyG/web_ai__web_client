@@ -22,25 +22,27 @@ import {AxiosInstance2 as axios} from 'src/utils/axios';
 import urls from 'src/urls';
 import store from "src/store";
 import {messagesSlice} from 'src/features/Messages/messagesSlice';
-import {imagesSlice} from "../imagesSlice";
+import {imagesSlice, text2imgSettingsSelector} from "../imagesSlice";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import {model_options} from "../text2img_models";
 import {RunpodClient} from "src/utils/runpod";
 import {nanoid} from "@reduxjs/toolkit";
+import {useSelector, useDispatch} from "react-redux";
 // import {mockBase64ImageString} from "src/prompts.js"  // mock for debugging
 
 const ai_tools_urls = urls.ai_tools;
 const initiate_run_url = ai_tools_urls.initiate_run;
-let initialValues = {
-    text: 'a pinochio steampunk robot, bar lighting serving coffee and chips, highly detailed, digital painting, artstation, concept art, sharp focus, cinematic lighting, illustration, artgerm, greg rutkowski, alphonse mucha, cgsociety, octane render, unreal engine 5',
-    model: model_options[0].value,
-    seed: Math.floor(Math.random() * 10000),
-    height: 768,
-    width: 512,
-    guidance_scale: 7.5,
-    num_inference_steps: 50,
-    submit: null
-}
+
+// let initialValues = {
+//     prompt: 'a pinochio steampunk robot, bar lighting serving coffee and chips, highly detailed, digital painting, artstation, concept art, sharp focus, cinematic lighting, illustration, artgerm, greg rutkowski, alphonse mucha, cgsociety, octane render, unreal engine 5',
+//     model: model_options[0].value,
+//     seed: Math.floor(Math.random() * 10000),
+//     height: 768,
+//     width: 512,
+//     guidance_scale: 7.5,
+//     num_inference_steps: 50,
+//     submit: null
+// }
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -67,7 +69,8 @@ const useStyles = makeStyles((theme) => ({
 const GenerateImageForm = ({ className, ...rest }) => {
   const classes = useStyles();
   const isMountedRef = useIsMountedRef();
-
+  const dispatch = useDispatch();
+  let text2imgSettings = useSelector(state => text2imgSettingsSelector(state));
   const [expanded, setExpanded] = React.useState(false);
   const [run, setRun] = React.useState({run_id: null, img_placeholder_id: null});
 
@@ -146,7 +149,7 @@ const GenerateImageForm = ({ className, ...rest }) => {
 
     try {
       let run_data = {
-        'prompt': values.text,
+        'prompt': values.prompt,
         'model': values.model,
         'seed': values.seed,
         'height': values.height,
@@ -176,7 +179,8 @@ const GenerateImageForm = ({ className, ...rest }) => {
 
       // update the initialValues object so that if the user revisit the page the previously used values will be pre-populated
       // notice that this is not components state, but a variable defined outside the component. It didn't work as a component state.
-      initialValues = {...values, seed: newSeed};
+      // initialValues = {...values, seed: newSeed};
+      dispatch(imagesSlice.actions.updateText2ImgSettings({prompt: values.prompt}));
 
       if (isMountedRef.current) {
         setStatus({ success: true });
@@ -210,10 +214,10 @@ const GenerateImageForm = ({ className, ...rest }) => {
 
   return (
     <Formik
-      // enableReinitialize={true}
-      initialValues={initialValues}
+      enableReinitialize={true}
+      initialValues={text2imgSettings}
       validationSchema={Yup.object().shape({
-        text: Yup.string().max(3500).required('Give me an image description!'),
+        prompt: Yup.string().max(3500).required('Give me an image description!'),
         seed: Yup.number().integer().required('Seed is required'),
         height: Yup.number().integer().required('Height is required'),
         width: Yup.number().integer().required('Width is required'),
@@ -238,16 +242,17 @@ const GenerateImageForm = ({ className, ...rest }) => {
                 <Grid item xs={12} md={10}>
                 <TextField
                   multiline
-                  error={Boolean(touched.text && errors.text)}
+                  error={Boolean(touched.prompt && errors.prompt)}
                   fullWidth
-                  helperText={touched.text && errors.text}
+                  helperText={touched.prompt && errors.prompt}
                   label="Text"
                   margin="normal"
-                  name="text"
+                  name="prompt"
                   onBlur={handleBlur}
                   onChange={handleChange}
                   type="text"
-                  value={values.text}
+                  value={values.prompt}
+                  // value={text2imgSettings.text}
                   variant="outlined"
               />
                 {errors.submit && (
